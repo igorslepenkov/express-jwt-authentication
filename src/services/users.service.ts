@@ -5,8 +5,7 @@ import { IServiceResponse, IUser, UserLogin, UserModel } from "../types";
 class UsersService {
   async registerUser(userData: IUser): Promise<IServiceResponse<UserModel>> {
     try {
-      if (userData.password.length < 6)
-        throw new Error("Password must be at least 6 characters length");
+      await User.validate(userData);
 
       const user = new User({
         ...userData,
