@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
+import { authMiddleware } from "./src/middleware";
 import { usersRouter } from "./src/routes";
 
 const app = express();
@@ -8,7 +9,7 @@ app.use(express.json());
 app.use(morgan("tiny"));
 const PORT = process.env.PORT ?? 3000;
 
-app.get("/", (req, res) => {
+app.get("/", authMiddleware, (req, res) => {
   res.send("Hello world");
 });
 

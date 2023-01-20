@@ -3,7 +3,6 @@ import jwt, {
   NotBeforeError,
   TokenExpiredError,
 } from "jsonwebtoken";
-import { RefreshToken } from "../models";
 import {
   ITokenGeneratorIsValidResponse,
   ITokenGeneratorSignResponse,
@@ -20,26 +19,20 @@ export class TokenGenerator {
   signTokens = async (
     payload: ITokenPayload
   ): Promise<ITokenGeneratorSignResponse> => {
-    const { value } = await RefreshToken.findOneAndUpdate(
-      { userId: payload.userId },
-      {
-        userId: payload.userId,
-        token: jwt.sign(payload, this.SECRET_KEY, { expiresIn: "12h" }),
-      },
-      { runValidators: true, upsert: true, rawResult: true }
-    );
+    const refreshToken = jwt.sign(payload, this.SECRET_KEY, {
+      expiresIn: "12h",
+    });
     const accessToken = jwt.sign(payload, this.SECRET_KEY, { expiresIn: "4h" });
 
     return {
       access: accessToken,
-      refresh: value
-        ? value.token
-        : jwt.sign(payload, this.SECRET_KEY, { expiresIn: "12h" }),
+      refresh: refreshToken,
     };
   };
 
   isValid = (token: string): ITokenGeneratorIsValidResponse => {
     try {
+      console.log(token);
       const payload = jwt.verify(token, this.SECRET_KEY);
       return { valid: true, payload };
     } catch (err: any) {

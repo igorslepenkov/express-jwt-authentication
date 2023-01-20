@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { usersService } from "../services";
+import { refreshTokensService, usersService } from "../services";
 import { tokenGenerator } from "../utils";
 
 class UsersController {
@@ -14,9 +14,18 @@ class UsersController {
       const userId = body._id.toString();
       const jwtPacket = await tokenGenerator.signTokens({ userId });
 
-      res
-        .status(200)
-        .send({ ...jwtPacket, message: "Successfully registered" });
+      const { status: refreshTokenStatus } = await refreshTokensService.sign({
+        userId,
+        token: jwtPacket.refresh,
+      });
+      if (refreshTokenStatus === 200) {
+        res
+          .status(200)
+          .send({ ...jwtPacket, message: "Successfully registered" });
+        return;
+      }
+
+      res.status(500).send({ error: "Unexpected error" });
       return;
     }
 
@@ -27,7 +36,19 @@ class UsersController {
     const { status, body, message } = await usersService.loginUser(req.body);
     if (status === 200) {
       const jwtPacket = await tokenGenerator.signTokens({ userId: body._id });
-      res.status(200).send({ ...jwtPacket, message });
+      const { status: refreshTokenStatus } = await refreshTokensService.sign({
+        userId: body._id,
+        token: jwtPacket.refresh,
+      });
+
+      if (refreshTokenStatus === 200) {
+        res
+          .status(200)
+          .send({ ...jwtPacket, message: "Successfully registered" });
+        return;
+      }
+
+      res.status(500).send({ error: "Unexpected error" });
       return;
     }
 

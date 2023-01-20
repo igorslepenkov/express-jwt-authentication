@@ -1,13 +1,19 @@
 import { NextFunction, Request, Response } from "express";
-import { tokenGenerator } from "../utils";
+import { parseBearerToken, tokenGenerator } from "../utils";
 
 export const authMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
 ): void => {
-  const token = req.headers.authorization;
-  if (token === undefined) {
+  if (!req.headers.authorization) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
+  const token = parseBearerToken(req.headers.authorization);
+
+  if (token === null) {
     res.status(401).send("Unauthorized");
     return;
   }
@@ -21,7 +27,7 @@ export const authMiddleware = (
   if (valid && typeof payload === "object" && "userId" in payload) {
     const { userId } = payload;
     req.body = { ...req.body, userId };
-    next();
+    return next();
   }
 
   res.status(500).send({ error: "Unexpected error" });
