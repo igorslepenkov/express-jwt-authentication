@@ -1,11 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { parseBearerToken, tokenGenerator } from "../utils";
 
-export const authMiddleware = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.headers.authorization) {
     res.status(401).send("Unauthorized");
     return;

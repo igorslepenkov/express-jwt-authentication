@@ -1,8 +1,4 @@
-import jwt, {
-  JsonWebTokenError,
-  NotBeforeError,
-  TokenExpiredError,
-} from "jsonwebtoken";
+import jwt, { JsonWebTokenError, NotBeforeError, TokenExpiredError } from "jsonwebtoken";
 import {
   ITokenGeneratorIsValidResponse,
   ITokenGeneratorSignResponse,

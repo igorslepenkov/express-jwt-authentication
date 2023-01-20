@@ -26,15 +26,13 @@ class UsersService {
 
   async loginUser({ email, password }: UserLogin): Promise<IServiceResponse> {
     try {
-      if (!email || !password)
-        throw new Error("Email and password are required");
+      if (!email || !password) throw new Error("Email and password are required");
 
       const user = await User.findOne({ email });
-      if (user === null) return { status: 404, message: "Email not found" };
+      if (!user) return { status: 404, message: "Email not found" };
 
       const isPasswordsEqual = await bcrypt.compare(password, user.password);
-      if (!isPasswordsEqual)
-        return { status: 400, message: "Password is incorrect" };
+      if (!isPasswordsEqual) return { status: 400, message: "Password is incorrect" };
 
       return { status: 200, body: user, message: "Successfully logged in" };
     } catch (err: any) {

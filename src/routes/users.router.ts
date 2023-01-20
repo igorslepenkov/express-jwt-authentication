@@ -2,11 +2,7 @@ import { Router } from "express";
 import { checkSchema } from "express-validator";
 import { usersController } from "../controllers";
 import { authMiddleware } from "../middleware";
-import {
-  loginSchema,
-  registrationSchema,
-  validatorCallback,
-} from "../middleware/validators";
+import { loginSchema, registrationSchema, validatorCallback } from "../middleware/validators";
 
 export const usersRouter = Router();
 
@@ -22,7 +18,4 @@ usersRouter
 
 usersRouter.route("/signOut").all(authMiddleware).get(usersController.signOut);
 
-usersRouter
-  .route("/refresh")
-  .all(authMiddleware)
-  .get(usersController.refreshToken);
+usersRouter.route("/refresh").all(authMiddleware).get(usersController.refreshToken);

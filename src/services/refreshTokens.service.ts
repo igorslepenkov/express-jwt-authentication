@@ -3,10 +3,7 @@ import { IRefreshToken, IServiceResponse } from "../types";
 import { tokenGenerator } from "../utils";
 
 class RefreshTokenService {
-  async sign({
-    userId,
-    token,
-  }: IRefreshToken): Promise<IServiceResponse<string>> {
+  async sign({ userId, token }: IRefreshToken): Promise<IServiceResponse<string>> {
     try {
       const previousToken = await RefreshToken.findOne({ userId });
 

@@ -1,9 +1,10 @@
 {
+  "plugins": ["prettier"],
   "env": {
     "browser": true,
     "es2021": true
   },
-  "extends": ["standard-with-typescript", "prettier"],
+  "extends": ["standard-with-typescript", "plugin:prettier/recommended"],
   "overrides": [],
   "parserOptions": {
     "ecmaVersion": "latest",
@@ -15,6 +16,7 @@
     "prefer-const": "error",
     "indent": ["warn", 2, { "SwitchCase": 1 }],
     "max-len": ["error", { "code": 100 }],
-    "semi": ["warn", "always"]
+    "semi": ["warn", "always"],
+    "prettier/prettier": "error"
   }
 }
