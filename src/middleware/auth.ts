@@ -26,7 +26,8 @@ export const authMiddleware = (
 
   if (valid && typeof payload === "object" && "userId" in payload) {
     const { userId } = payload;
-    req.body = { ...req.body, userId };
+    req.userId = userId;
+    req.token = token;
     return next();
   }
 

@@ -42,9 +42,7 @@ class UsersController {
       });
 
       if (refreshTokenStatus === 200) {
-        res
-          .status(200)
-          .send({ ...jwtPacket, message: "Successfully registered" });
+        res.status(200).send({ ...jwtPacket, message });
         return;
       }
 
@@ -58,6 +56,44 @@ class UsersController {
     }
 
     res.status(500).send({ error: "Unexpected error" });
+  }
+
+  async signOut(req: Request, res: Response): Promise<void> {
+    const { userId } = req;
+
+    if (userId) {
+      const { status, message } = await usersService.signOut(userId);
+      if (status === 200) {
+        const { status: tokenStatus, message: tokenMessage } =
+          await refreshTokensService.forget(userId);
+        if (tokenStatus === 200) {
+          res.status(200).send({ tokenMessage });
+          return;
+        }
+
+        res.status(400).send({ tokenMessage });
+        return;
+      }
+
+      res.status(400).send({ message });
+    }
+  }
+
+  async refreshToken(req: Request, res: Response): Promise<void> {
+    const { userId, token } = req;
+    if (userId && token) {
+      const { status, body, message } = await refreshTokensService.refresh({
+        userId,
+        token,
+      });
+
+      if (status === 200 && body) {
+        res.status(200).send({ ...body, message });
+        return;
+      }
+
+      res.status(401).send({ error: message ?? "Unexpected error" });
+    }
   }
 }
 

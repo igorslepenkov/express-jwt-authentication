@@ -41,6 +41,20 @@ class UsersService {
       return { status: 400, message: err.message ?? "Bad request" };
     }
   }
+
+  async signOut(userId: string): Promise<IServiceResponse> {
+    try {
+      const user = await User.findOne({ _id: userId });
+
+      if (user) {
+        return { status: 200, message: "OK" };
+      }
+
+      return { status: 400, message: "User not found" };
+    } catch (err: any) {
+      return { status: 400, message: "Unexpected error" };
+    }
+  }
 }
 
 export const usersService = new UsersService();

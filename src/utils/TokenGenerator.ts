@@ -16,9 +16,7 @@ export class TokenGenerator {
     this.SECRET_KEY = secret;
   }
 
-  signTokens = async (
-    payload: ITokenPayload
-  ): Promise<ITokenGeneratorSignResponse> => {
+  signTokens = (payload: ITokenPayload): ITokenGeneratorSignResponse => {
     const refreshToken = jwt.sign(payload, this.SECRET_KEY, {
       expiresIn: "12h",
     });
@@ -32,7 +30,6 @@ export class TokenGenerator {
 
   isValid = (token: string): ITokenGeneratorIsValidResponse => {
     try {
-      console.log(token);
       const payload = jwt.verify(token, this.SECRET_KEY);
       return { valid: true, payload };
     } catch (err: any) {
