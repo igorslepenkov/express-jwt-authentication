@@ -66,15 +66,15 @@ class UsersController {
           userId
         );
         if (tokenStatus === 200) {
-          res.status(200).send({ tokenMessage });
+          res.status(200).send({ message: tokenMessage });
           return;
         }
 
-        res.status(400).send({ tokenMessage });
+        res.status(400).send({ error: tokenMessage });
         return;
       }
 
-      res.status(400).send({ message });
+      res.status(400).send({ error: message });
     }
   }
 

@@ -1,0 +1,169 @@
+openapi: 3.0.0
+info:
+  title: Express App by Igor Slepenkov
+  version: 1.0.0
+servers:
+  - url: localhost:3000/
+paths:
+  /:
+    get:
+      summary: Just the test route to check how authMiddleware works
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Sends "Hello world"
+          content:
+            text:
+              schema:
+                type: string
+                format: utf8
+  /users/register:
+    post:
+      summary: Registers user and returns access token, refresh token and message
+      requestBody:
+        description: First name, last name, email and password
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "200":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JwtPack"
+        "400":
+          description: User could not be registered due to invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: User could not be registered due to unrecognized server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/login:
+    post:
+      summary: Login user and return access token, refresh token and message
+      requestBody:
+        description: First name, last name, email and password
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JwtPack"
+        "400":
+          description: User could not be registered due to invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: User could not be registered due to unrecognized server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/signOut:
+    get:
+      summary: User is signing out and refresh token erased from db
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User signed out successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignOutSuccess"
+        "400":
+          description: User could not be signed out due to invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/refresh:
+    get:
+      summary: Takes refresh token, checks if it is valid and exists in db and then returns new pair of access and refresh tokens with a message
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JwtPack"
+        "401":
+          description: Refreshing has failed because invalid refresh token was provided or unexpected error occured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    JwtPack:
+      type: object
+      properties:
+        access:
+          type: string
+          format: utf8
+        refresh:
+          type: string
+          format: utf8
+        message:
+          type: string
+          format: utf8
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          format: utf8
+    SignOutSuccess:
+      type: object
+      properties:
+        message:
+          type: object
+          format: utf8
+    RegisterRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          format: utf8
+        lastName:
+          type: string
+          format: utf8
+        email:
+          type: string
+          format: urf8
+        password:
+          type: string
+          format: utf8
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: urf8
+        password:
+          type: string
+          format: utf8
