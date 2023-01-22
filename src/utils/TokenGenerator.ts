@@ -14,9 +14,11 @@ export class TokenGenerator {
 
   signTokens = (payload: ITokenPayload): ITokenGeneratorSignResponse => {
     const refreshToken = jwt.sign(payload, this.SECRET_KEY, {
-      expiresIn: "12h",
+      expiresIn: process.env.REFRESH_EXPIRES_IN ?? "12h",
     });
-    const accessToken = jwt.sign(payload, this.SECRET_KEY, { expiresIn: "4h" });
+    const accessToken = jwt.sign(payload, this.SECRET_KEY, {
+      expiresIn: process.env.ACCESS_EXPIRES_IN ?? "4h",
+    });
 
     return {
       access: accessToken,
