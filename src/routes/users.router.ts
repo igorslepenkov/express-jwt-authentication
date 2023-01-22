@@ -1,20 +1,17 @@
 import { Router } from "express";
-import { checkSchema } from "express-validator";
+import { makeValidateBody } from "express-class-validator";
 import { usersController } from "../controllers";
 import { authMiddleware } from "../middleware";
-import { loginSchema, registrationSchema, validatorCallback } from "../middleware/validators";
+import { LoginUserDTO, RegisterUserDTO } from "../entities/dto";
 
 export const usersRouter = Router();
 
 usersRouter
   .route("/register")
-  .all(checkSchema(registrationSchema), validatorCallback)
+  .all(makeValidateBody(RegisterUserDTO))
   .post(usersController.register);
 
-usersRouter
-  .route("/login")
-  .all(checkSchema(loginSchema), validatorCallback)
-  .post(usersController.login);
+usersRouter.route("/login").all(makeValidateBody(LoginUserDTO)).post(usersController.login);
 
 usersRouter.route("/signOut").all(authMiddleware).get(usersController.signOut);
 

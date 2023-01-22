@@ -11,7 +11,7 @@ class UsersController {
     }
 
     if (body) {
-      const userId = body._id.toString();
+      const userId = body.id;
       const jwtPacket = tokenGenerator.signTokens({ userId });
 
       const { status: refreshTokenStatus } = await refreshTokensService.sign({
@@ -32,10 +32,10 @@ class UsersController {
 
   async login(req: Request, res: Response): Promise<void> {
     const { status, body, message } = await usersService.loginUser(req.body);
-    if (status === 200) {
-      const jwtPacket = tokenGenerator.signTokens({ userId: body._id });
+    if (status === 200 && body) {
+      const jwtPacket = tokenGenerator.signTokens({ userId: body.id });
       const { status: refreshTokenStatus } = await refreshTokensService.sign({
-        userId: body._id,
+        userId: body.id,
         token: jwtPacket.refresh,
       });
 
