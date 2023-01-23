@@ -1,10 +1,11 @@
 import { Entity, Column, ObjectIdColumn, Index } from "typeorm";
 import { IsEmail, Length, IsNotEmpty, IsString } from "class-validator";
+import { ObjectID } from "mongodb";
 
 @Entity()
 export class User {
   @ObjectIdColumn()
-  id: string;
+  id: ObjectID;
 
   @Column()
   @IsNotEmpty()

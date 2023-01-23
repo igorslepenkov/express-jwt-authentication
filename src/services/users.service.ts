@@ -3,16 +3,20 @@ import { User } from "../entities";
 import { dataSourceManager } from "../config";
 import { IServiceResponse, UserModel } from "../types";
 import { LoginUserDTO, RegisterUserDTO } from "../entities/dto";
+import { ObjectID } from "typeorm";
+import { BaseService } from "./BaseService";
 
-class UsersService {
+class UsersService extends BaseService<User> {
+  constructor() {
+    super(User);
+  }
+
   async registerUser(userData: RegisterUserDTO): Promise<IServiceResponse<UserModel>> {
     try {
-      const user = dataSourceManager.create(User, {
+      const user = await this.repository.create({
         ...userData,
         password: bcrypt.hashSync(userData.password),
       });
-
-      await dataSourceManager.save(user);
 
       const { password, ...userSafeProperties } = user;
 
@@ -30,7 +34,7 @@ class UsersService {
     try {
       if (!email || !password) throw new Error("Email and password are required");
 
-      const user = await dataSourceManager.findOneBy(User, { email });
+      const user = await this.repository.findOneByOtherProps({ email });
       if (!user) return { status: 404, message: "Email not found" };
 
       const isPasswordsEqual = await bcrypt.compare(password, user.password);
@@ -46,8 +50,7 @@ class UsersService {
 
   async signOut(userId: string): Promise<IServiceResponse> {
     try {
-      const user = await dataSourceManager.findOneBy(User, { id: userId });
-
+      const user = await this.repository.findOneById(userId);
       if (user) {
         return { status: 200, message: "OK" };
       }

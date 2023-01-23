@@ -1,16 +1,20 @@
 import { RefreshToken } from "../entities";
-import { dataSourceManager } from "../config";
 import { IServiceResponse } from "../types";
 import { tokenGenerator } from "../utils";
 import { SignRefreshTokenDTO } from "../entities/dto";
+import { BaseService } from "./BaseService";
+import { ObjectID } from "typeorm";
 
-class RefreshTokenService {
+class RefreshTokenService extends BaseService<RefreshToken> {
+  constructor() {
+    super(RefreshToken);
+  }
+
   async sign({ userId, token }: SignRefreshTokenDTO): Promise<IServiceResponse<string>> {
     try {
-      const previousToken = await dataSourceManager.findOneBy(RefreshToken, { userId });
-
+      const previousToken = await this.repository.findOneByOtherProps({ userId });
       if (previousToken) {
-        const result = await dataSourceManager.update(RefreshToken, { userId }, { token });
+        const result = await this.repository.update({ userId }, { token });
 
         if (result) {
           return { status: 200, message: "OK" };
@@ -18,8 +22,7 @@ class RefreshTokenService {
       }
 
       if (!previousToken) {
-        const refreshToken = dataSourceManager.create(RefreshToken, { userId, token });
-        await dataSourceManager.save(refreshToken);
+        await this.repository.create({ userId, token });
         return { status: 200, message: "Ok" };
       }
 
@@ -31,8 +34,8 @@ class RefreshTokenService {
   }
 
   async refresh({ userId, token }: SignRefreshTokenDTO) {
-    const refreshToken = await dataSourceManager.findOneBy(RefreshToken, { token });
-    if (refreshToken && refreshToken.userId.toString() === userId) {
+    const refreshToken = await this.repository.findOneByOtherProps({ userId });
+    if (refreshToken && refreshToken.token === token) {
       const jwtPack = tokenGenerator.signTokens({ userId });
 
       return { status: 200, body: jwtPack, message: "Token refreshed" };
@@ -43,8 +46,8 @@ class RefreshTokenService {
 
   async forget(userId: string): Promise<IServiceResponse> {
     try {
-      const refreshToken = await dataSourceManager.findOneBy(RefreshToken, { userId });
-      const result = await dataSourceManager.remove(refreshToken);
+      const record = await this.repository.findOneByOtherProps({ userId });
+      const result = await this.repository.remove(record);
       if (result) {
         return { status: 200, message: "Sign out successfully" };
       }

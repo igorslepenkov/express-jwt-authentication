@@ -1,24 +1,29 @@
 import { initDatasource, dataSourceManager } from "./src/config";
+import { MongodbRepository } from "./src/entities/repositories";
 import { User } from "./src/entities";
+import { ObjectID } from "mongodb";
 
-const startNewLifeWithTypeorm = async () => {
-  try {
-    await initDatasource();
+const asyncWork = async () => {
+  await initDatasource();
 
-    const users = await dataSourceManager.find(User);
-    console.log(users);
+  const userRepo = new MongodbRepository(User);
 
-    const user = new User();
-    user.firstName = "Igor";
-    user.lastName = "Slepenkov";
-    user.email = "slepenkov.nii@yandex.by";
-    user.password = "Slepenkov2";
+  // const user = await userRepo.create({
+  //   firstName: "Igor",
+  //   lastName: "Slepenkov",
+  //   email: "slepenkov.nii@yandex.by",
+  //   password: "Slepenkov2",
+  // });
+  // console.log(typeof user.id);
 
-    const result = await dataSourceManager.save(user);
-    console.log(result);
-  } catch (err) {
-    console.log(err);
-  }
+  const userId = ObjectID.createFromHexString("63ce88dae6be963d480644ec");
+  const allUsers = await dataSourceManager.find(User);
+
+  console.log(userId);
+  console.log(allUsers[0].id);
+
+  const userFind = await dataSourceManager.findOneById(User, userId);
+  console.log(userFind);
 };
 
-startNewLifeWithTypeorm();
+asyncWork();

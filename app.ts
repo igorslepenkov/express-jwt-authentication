@@ -1,7 +1,7 @@
+import "reflect-metadata";
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
-import "reflect-metadata";
 import yaml from "yamljs";
 import { initDatasource } from "./src/config";
 import { authMiddleware } from "./src/middleware";
