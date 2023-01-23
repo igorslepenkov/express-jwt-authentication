@@ -3,7 +3,7 @@ info:
   title: Express App by Igor Slepenkov
   version: 1.0.0
 servers:
-  - url: localhost:3000/
+  - url: http://localhost:3000/
 paths:
   /:
     get:
