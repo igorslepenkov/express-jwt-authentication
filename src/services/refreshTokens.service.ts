@@ -30,11 +30,10 @@ class RefreshTokenService {
     }
   }
 
-  async refresh(data: SignRefreshTokenDTO) {
-    const refreshToken = await dataSourceManager.findOneBy(RefreshToken, data);
-
-    if (refreshToken) {
-      const jwtPack = tokenGenerator.signTokens({ userId: data.userId });
+  async refresh({ userId, token }: SignRefreshTokenDTO) {
+    const refreshToken = await dataSourceManager.findOneBy(RefreshToken, { token });
+    if (refreshToken && refreshToken.userId.toString() === userId) {
+      const jwtPack = tokenGenerator.signTokens({ userId });
 
       return { status: 200, body: jwtPack, message: "Token refreshed" };
     }

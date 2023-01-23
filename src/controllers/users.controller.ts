@@ -79,10 +79,11 @@ class UsersController {
   }
 
   async refreshToken(req: Request, res: Response): Promise<void> {
-    const { userId, token } = req;
-    if (userId && token) {
+    const { token } = req.body;
+    const { valid, payload } = tokenGenerator.isValid(token);
+    if (valid && payload && token && typeof payload === "object" && "userId" in payload) {
       const { status, body, message } = await refreshTokensService.refresh({
-        userId,
+        userId: payload.userId,
         token,
       });
 

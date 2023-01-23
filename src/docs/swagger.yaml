@@ -95,10 +95,15 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
   /users/refresh:
-    get:
+    post:
       summary: Takes refresh token, checks if it is valid and exists in db and then returns new pair of access and refresh tokens with a message
-      security:
-        - BearerAuth: []
+      requestBody:
+        description: Token (refresh token)
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokens"
       responses:
         "200":
           description: Token refreshed successfully
@@ -118,7 +123,14 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
+
   schemas:
+    RefreshTokens:
+      type: object
+      properties:
+        token:
+          type: string
+          format: utf8
     JwtPack:
       type: object
       properties:

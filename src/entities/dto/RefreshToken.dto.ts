@@ -7,3 +7,8 @@ export class SignRefreshTokenDTO {
   @IsString()
   token: string;
 }
+
+export class RefreshTokensDTO {
+  @IsString()
+  token: string;
+}
