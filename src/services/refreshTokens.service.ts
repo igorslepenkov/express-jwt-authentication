@@ -1,20 +1,18 @@
-import { RefreshToken } from "../entities";
 import { IServiceResponse } from "../types";
 import { tokenGenerator } from "../utils";
 import { SignRefreshTokenDTO } from "../entities/dto";
-import { BaseService } from "./BaseService";
-import { ObjectID } from "typeorm";
+import { refreshTokensRepository } from "../repository";
 
-class RefreshTokenService extends BaseService<RefreshToken> {
-  constructor() {
-    super(RefreshToken);
-  }
+class RefreshTokenService {
+  private readonly refreshTokensRepository = refreshTokensRepository;
 
   async sign({ userId, token }: SignRefreshTokenDTO): Promise<IServiceResponse<string>> {
     try {
-      const previousToken = await this.repository.findOneByOtherProps({ userId });
+      const { refreshTokensRepository } = this;
+
+      const previousToken = await refreshTokensRepository.findOneByOtherProps({ userId });
       if (previousToken) {
-        const result = await this.repository.update({ userId }, { token });
+        const result = await refreshTokensRepository.update({ userId }, { token });
 
         if (result) {
           return { status: 200, message: "OK" };
@@ -22,7 +20,7 @@ class RefreshTokenService extends BaseService<RefreshToken> {
       }
 
       if (!previousToken) {
-        await this.repository.create({ userId, token });
+        await refreshTokensRepository.create({ userId, token });
         return { status: 200, message: "Ok" };
       }
 
@@ -34,20 +32,28 @@ class RefreshTokenService extends BaseService<RefreshToken> {
   }
 
   async refresh({ userId, token }: SignRefreshTokenDTO) {
-    const refreshToken = await this.repository.findOneByOtherProps({ userId });
-    if (refreshToken && refreshToken.token === token) {
-      const jwtPack = tokenGenerator.signTokens({ userId });
+    try {
+      const { refreshTokensRepository } = this;
 
-      return { status: 200, body: jwtPack, message: "Token refreshed" };
+      const refreshToken = await refreshTokensRepository.findOneByOtherProps({ userId });
+      if (refreshToken && refreshToken.token === token) {
+        const jwtPack = tokenGenerator.signTokens({ userId });
+
+        return { status: 200, body: jwtPack, message: "Token refreshed" };
+      }
+
+      return { status: 401, message: "Unrecognized token" };
+    } catch (err) {
+      return { status: 500, message: "Unexpected error" };
     }
-
-    return { status: 401, message: "Unrecognized token" };
   }
 
   async forget(userId: string): Promise<IServiceResponse> {
     try {
-      const record = await this.repository.findOneByOtherProps({ userId });
-      const result = await this.repository.remove(record);
+      const { refreshTokensRepository } = this;
+
+      const record = await refreshTokensRepository.findOneByOtherProps({ userId });
+      const result = await refreshTokensRepository.remove(record);
       if (result) {
         return { status: 200, message: "Sign out successfully" };
       }

@@ -1,19 +1,16 @@
 import bcrypt from "bcryptjs";
-import { User } from "../entities";
-import { dataSourceManager } from "../config";
 import { IServiceResponse, UserModel } from "../types";
 import { LoginUserDTO, RegisterUserDTO } from "../entities/dto";
-import { ObjectID } from "typeorm";
-import { BaseService } from "./BaseService";
+import { usersRepository } from "../repository/mongodb";
 
-class UsersService extends BaseService<User> {
-  constructor() {
-    super(User);
-  }
+class UsersService {
+  private readonly usersRepository = usersRepository;
 
   async registerUser(userData: RegisterUserDTO): Promise<IServiceResponse<UserModel>> {
     try {
-      const user = await this.repository.create({
+      const { usersRepository } = this;
+
+      const user = await usersRepository.create({
         ...userData,
         password: bcrypt.hashSync(userData.password),
       });
@@ -32,9 +29,11 @@ class UsersService extends BaseService<User> {
 
   async loginUser({ email, password }: LoginUserDTO): Promise<IServiceResponse<UserModel>> {
     try {
+      const { usersRepository } = this;
+
       if (!email || !password) throw new Error("Email and password are required");
 
-      const user = await this.repository.findOneByOtherProps({ email });
+      const user = await usersRepository.findOneByOtherProps({ email });
       if (!user) return { status: 404, message: "Email not found" };
 
       const isPasswordsEqual = await bcrypt.compare(password, user.password);
@@ -50,7 +49,9 @@ class UsersService extends BaseService<User> {
 
   async signOut(userId: string): Promise<IServiceResponse> {
     try {
-      const user = await this.repository.findOneById(userId);
+      const { usersRepository } = this;
+
+      const user = await usersRepository.findOneById(userId);
       if (user) {
         return { status: 200, message: "OK" };
       }
