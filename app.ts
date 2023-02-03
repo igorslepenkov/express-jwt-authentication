@@ -1,8 +1,9 @@
+import "reflect-metadata";
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import yaml from "yamljs";
-import { initMongoose } from "./src/config";
+import { initDatasource } from "./src/config";
 import { authMiddleware } from "./src/middleware";
 import { usersRouter } from "./src/routes";
 
@@ -22,7 +23,7 @@ app.get("/", authMiddleware, (req, res) => {
 app.use("/users", usersRouter);
 
 async function initApp(): Promise<void> {
-  await initMongoose();
+  await initDatasource();
 
   app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);

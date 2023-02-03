@@ -1,43 +1,59 @@
-import { RefreshToken } from "../models";
-import { IRefreshToken, IServiceResponse } from "../types";
+import { IServiceResponse } from "../types";
 import { tokenGenerator } from "../utils";
+import { SignRefreshTokenDTO } from "../entities/dto";
+import { refreshTokensRepository } from "../repository";
 
 class RefreshTokenService {
-  async sign({ userId, token }: IRefreshToken): Promise<IServiceResponse<string>> {
+  private readonly refreshTokensRepository = refreshTokensRepository;
+
+  async sign({ userId, token }: SignRefreshTokenDTO): Promise<IServiceResponse<string>> {
     try {
-      const previousToken = await RefreshToken.findOne({ userId });
+      const { refreshTokensRepository } = this;
 
-      let result;
+      const previousToken = await refreshTokensRepository.findOneByOtherProps({ userId });
+      if (previousToken) {
+        const result = await refreshTokensRepository.update({ userId }, { token });
 
-      previousToken
-        ? (result = await RefreshToken.updateOne({ userId }, { token }))
-        : (result = await RefreshToken.create({ userId, token }));
+        if (result) {
+          return { status: 200, message: "OK" };
+        }
+      }
 
-      if (result) {
-        return { status: 200, message: "OK" };
+      if (!previousToken) {
+        await refreshTokensRepository.create({ userId, token });
+        return { status: 200, message: "Ok" };
       }
 
       return { status: 500, message: "Unexpected error" };
     } catch (err: any) {
+      console.log(err);
       return { status: 500, message: err.message ?? "Unexpected error" };
     }
   }
 
-  async refresh(data: IRefreshToken) {
-    const refreshToken = await RefreshToken.findOne(data);
+  async refresh({ userId, token }: SignRefreshTokenDTO) {
+    try {
+      const { refreshTokensRepository } = this;
 
-    if (refreshToken) {
-      const jwtPack = tokenGenerator.signTokens({ userId: data.userId });
+      const refreshToken = await refreshTokensRepository.findOneByOtherProps({ userId });
+      if (refreshToken && refreshToken.token === token) {
+        const jwtPack = tokenGenerator.signTokens({ userId });
 
-      return { status: 200, body: jwtPack, message: "Token refreshed" };
+        return { status: 200, body: jwtPack, message: "Token refreshed" };
+      }
+
+      return { status: 401, message: "Unrecognized token" };
+    } catch (err) {
+      return { status: 500, message: "Unexpected error" };
     }
-
-    return { status: 401, message: "Unrecognized token" };
   }
 
   async forget(userId: string): Promise<IServiceResponse> {
     try {
-      const result = await RefreshToken.findOneAndRemove({ userId });
+      const { refreshTokensRepository } = this;
+
+      const record = await refreshTokensRepository.findOneByOtherProps({ userId });
+      const result = await refreshTokensRepository.remove(record);
       if (result) {
         return { status: 200, message: "Sign out successfully" };
       }

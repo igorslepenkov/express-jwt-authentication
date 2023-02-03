@@ -1,8 +1,8 @@
 export const parseBearerToken = (bearerToken: string): string | null => {
-  const matchResult = bearerToken.match(/Bearer ([\w.]+)/);
+  const splitResult = bearerToken.split(" ");
 
-  if (matchResult && matchResult.length > 1) {
-    return matchResult[1];
+  if (splitResult && splitResult.length > 1) {
+    return splitResult[1];
   }
 
   return null;

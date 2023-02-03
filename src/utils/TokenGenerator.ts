@@ -1,9 +1,6 @@
 import jwt, { JsonWebTokenError, NotBeforeError, TokenExpiredError } from "jsonwebtoken";
-import {
-  ITokenGeneratorIsValidResponse,
-  ITokenGeneratorSignResponse,
-  ITokenPayload,
-} from "../types";
+import { RefreshToken } from "../entities";
+import { ITokenGeneratorIsValidResponse, ITokenGeneratorSignResponse } from "../types";
 
 export class TokenGenerator {
   SECRET_KEY: string;
@@ -12,11 +9,13 @@ export class TokenGenerator {
     this.SECRET_KEY = secret;
   }
 
-  signTokens = (payload: ITokenPayload): ITokenGeneratorSignResponse => {
+  signTokens = (payload: Pick<RefreshToken, "userId">): ITokenGeneratorSignResponse => {
     const refreshToken = jwt.sign(payload, this.SECRET_KEY, {
-      expiresIn: "12h",
+      expiresIn: process.env.REFRESH_EXPIRES_IN ?? "12h",
     });
-    const accessToken = jwt.sign(payload, this.SECRET_KEY, { expiresIn: "4h" });
+    const accessToken = jwt.sign(payload, this.SECRET_KEY, {
+      expiresIn: process.env.ACCESS_EXPIRES_IN ?? "4h",
+    });
 
     return {
       access: accessToken,

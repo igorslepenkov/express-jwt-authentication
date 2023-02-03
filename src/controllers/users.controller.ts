@@ -11,11 +11,11 @@ class UsersController {
     }
 
     if (body) {
-      const userId = body._id.toString();
-      const jwtPacket = tokenGenerator.signTokens({ userId });
+      const userId = body.id;
+      const jwtPacket = tokenGenerator.signTokens({ userId: userId.toString() });
 
       const { status: refreshTokenStatus } = await refreshTokensService.sign({
-        userId,
+        userId: userId.toString(),
         token: jwtPacket.refresh,
       });
       if (refreshTokenStatus === 200) {
@@ -32,10 +32,10 @@ class UsersController {
 
   async login(req: Request, res: Response): Promise<void> {
     const { status, body, message } = await usersService.loginUser(req.body);
-    if (status === 200) {
-      const jwtPacket = tokenGenerator.signTokens({ userId: body._id });
+    if (status === 200 && body) {
+      const jwtPacket = tokenGenerator.signTokens({ userId: body.id.toString() });
       const { status: refreshTokenStatus } = await refreshTokensService.sign({
-        userId: body._id,
+        userId: body.id.toString(),
         token: jwtPacket.refresh,
       });
 
@@ -79,10 +79,11 @@ class UsersController {
   }
 
   async refreshToken(req: Request, res: Response): Promise<void> {
-    const { userId, token } = req;
-    if (userId && token) {
+    const { token } = req.body;
+    const { valid, payload } = tokenGenerator.isValid(token);
+    if (valid && payload && token && typeof payload === "object" && "userId" in payload) {
       const { status, body, message } = await refreshTokensService.refresh({
-        userId,
+        userId: payload.userId,
         token,
       });
 
