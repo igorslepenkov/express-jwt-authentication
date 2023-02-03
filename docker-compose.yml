@@ -1,0 +1,29 @@
+version: "3.1"
+
+services:
+  app:
+    container_name: express-jwt-auth
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+    networks:
+      - express-jwt-app
+    depends_on:
+      - mongo
+    restart: always
+
+  mongo:
+    container_name: mongo
+    image: mongo
+    restart: always
+    networks:
+      - express-jwt-app
+    ports:
+      - 27017:27017
+
+networks:
+  express-jwt-app:
