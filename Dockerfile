@@ -3,6 +3,5 @@ WORKDIR /app
 COPY /build /app/src
 COPY /package.json /app/
 COPY /src/docs /app/src/docs
-RUN npm install
+RUN npm install --production
 CMD node ./src/index.js
-EXPOSE 3000

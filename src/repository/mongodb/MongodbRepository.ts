@@ -4,9 +4,9 @@ import {
   FindOptionsWhere,
   ObjectLiteral,
   UpdateResult,
+  EntityTarget,
 } from "typeorm";
 import { ObjectID } from "mongodb";
-import { EntityTarget } from "typeorm";
 import { dataSourceManager } from "../../config";
 
 export class MongodbRepository<Type extends ObjectLiteral> {
@@ -31,7 +31,7 @@ export class MongodbRepository<Type extends ObjectLiteral> {
   }
 
   async findOneByOtherProps(
-    options: FindOptionsWhere<Type> | FindOptionsWhere<Type>[]
+    options: FindOptionsWhere<Type> | Array<FindOptionsWhere<Type>>
   ): Promise<Type | null> {
     const record = await dataSourceManager.findOneBy<Type>(this.entity, options);
     return record;

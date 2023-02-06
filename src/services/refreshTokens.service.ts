@@ -31,7 +31,7 @@ class RefreshTokenService {
     }
   }
 
-  async refresh({ userId, token }: SignRefreshTokenDTO) {
+  async refresh({ userId, token }: SignRefreshTokenDTO): Promise<IServiceResponse> {
     try {
       const { refreshTokensRepository } = this;
 
