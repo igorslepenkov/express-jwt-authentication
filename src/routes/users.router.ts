@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { makeValidateBody } from "express-class-validator";
 import { usersController } from "../controllers";
-import { authMiddleware } from "../middleware";
+import { authMiddleware, sessionModdleware } from "../middleware";
 import { LoginUserDTO, RefreshTokensDTO, RegisterUserDTO } from "../entities/dto";
 
 export const usersRouter = Router();
@@ -13,7 +13,11 @@ usersRouter
 
 usersRouter.route("/login").all(makeValidateBody(LoginUserDTO)).post(usersController.login);
 
-usersRouter.route("/signOut").all(authMiddleware).get(usersController.signOut);
+usersRouter
+  .route("/signOut")
+  .all(authMiddleware)
+  .all(sessionModdleware)
+  .get(usersController.signOut);
 
 usersRouter
   .route("/refresh")

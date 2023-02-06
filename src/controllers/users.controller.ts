@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { refreshTokensService, usersService } from "../services";
+import { usersService, sessionsService } from "../services";
 import { tokenGenerator } from "../utils";
 
 class UsersController {
@@ -13,12 +13,14 @@ class UsersController {
     if (body) {
       const userId = body.id;
       const jwtPacket = tokenGenerator.signTokens({ userId: userId.toString() });
+      const { access, refresh } = jwtPacket;
 
-      const { status: refreshTokenStatus } = await refreshTokensService.sign({
-        userId: userId.toString(),
-        token: jwtPacket.refresh,
+      const { status: sessionStatus } = await sessionsService.sign({
+        ip: req.ip,
+        accessToken: access,
+        refreshToken: refresh,
       });
-      if (refreshTokenStatus === 200) {
+      if (sessionStatus === 200) {
         res.status(200).send({ ...jwtPacket, message: "Successfully registered" });
         return;
       }
@@ -34,12 +36,15 @@ class UsersController {
     const { status, body, message } = await usersService.loginUser(req.body);
     if (status === 200 && body) {
       const jwtPacket = tokenGenerator.signTokens({ userId: body.id.toString() });
-      const { status: refreshTokenStatus } = await refreshTokensService.sign({
-        userId: body.id.toString(),
-        token: jwtPacket.refresh,
+      const { access, refresh } = jwtPacket;
+
+      const { status: sessionStatus } = await sessionsService.sign({
+        ip: req.ip,
+        accessToken: access,
+        refreshToken: refresh,
       });
 
-      if (refreshTokenStatus === 200) {
+      if (sessionStatus === 200) {
         res.status(200).send({ ...jwtPacket, message });
         return;
       }
@@ -62,9 +67,7 @@ class UsersController {
     if (userId) {
       const { status, message } = await usersService.signOut(userId);
       if (status === 200) {
-        const { status: tokenStatus, message: tokenMessage } = await refreshTokensService.forget(
-          userId
-        );
+        const { status: tokenStatus, message: tokenMessage } = await sessionsService.forget(req.ip);
         if (tokenStatus === 200) {
           res.status(200).send({ message: tokenMessage });
           return;
@@ -82,9 +85,10 @@ class UsersController {
     const { token } = req.body;
     const { valid, payload } = tokenGenerator.isValid(token);
     if (valid && payload && token && typeof payload === "object" && "userId" in payload) {
-      const { status, body, message } = await refreshTokensService.refresh({
+      const { status, body, message } = await sessionsService.refresh({
+        ip: req.ip,
         userId: payload.userId,
-        token,
+        refreshToken: token,
       });
 
       if (status === 200 && body) {
