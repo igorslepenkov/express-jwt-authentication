@@ -67,7 +67,7 @@ class SessionsService {
 
       return { isValid: false, message: "Unrecognized session" };
     } catch (err: any) {
-      return { isValid: false, message: "Unexpected error" };
+      return { isValid: false, message: "Session validation failed" };
     }
   }
 }
