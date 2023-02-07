@@ -2,7 +2,13 @@ import { Router } from "express";
 import { makeValidateBody } from "express-class-validator";
 import { usersController } from "../controllers";
 import { authMiddleware, sessionModdleware } from "../middleware";
-import { LoginUserDTO, RefreshTokensDTO, RegisterUserDTO } from "../entities/dto";
+import {
+  ForgotPasswordDTO,
+  LoginUserDTO,
+  RefreshTokensDTO,
+  RegisterUserDTO,
+  ResetPasswordDTO,
+} from "../entities/dto";
 
 export const usersRouter = Router();
 
@@ -23,3 +29,14 @@ usersRouter
   .route("/refresh")
   .all(makeValidateBody(RefreshTokensDTO))
   .post(usersController.refreshToken);
+
+usersRouter
+  .route("/forgotPas")
+  .all(makeValidateBody(ForgotPasswordDTO))
+  .post(usersController.forgotPassword);
+
+usersRouter
+  .route("/resetPas/:token")
+  .get(usersController.getResetPassword)
+  .post(makeValidateBody(ResetPasswordDTO))
+  .post(usersController.postResetPassword);

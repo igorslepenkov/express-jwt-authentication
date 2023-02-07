@@ -61,6 +61,37 @@ class UsersService {
       return { status: 400, message: "Unexpected error" };
     }
   }
+
+  async forgotPassword(email: string): Promise<IServiceResponse> {
+    try {
+      const user = await this.usersRepository.findOneByOtherProps({ email });
+
+      if (user) {
+        return { status: 200, body: user, message: "OK" };
+      }
+
+      return { status: 404, message: "User could not be found" };
+    } catch (err: any) {
+      return { status: 500, message: "Unexpected error" };
+    }
+  }
+
+  async resetPassword(id: string, newPassword: string): Promise<IServiceResponse> {
+    try {
+      const result = await this.usersRepository.update(
+        { id },
+        { password: bcrypt.hashSync(newPassword) }
+      );
+
+      if (result) {
+        return { status: 200, message: "Password has been reset" };
+      }
+
+      return { status: 400, message: "Password could not be reset" };
+    } catch (err: any) {
+      return { status: 500, message: "Password could not be reset due to unexpected error" };
+    }
+  }
 }
 
 export const usersService = new UsersService();

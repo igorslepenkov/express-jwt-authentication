@@ -9,6 +9,10 @@ export class TokenGenerator {
     this.SECRET_KEY = secret;
   }
 
+  signMailerToken = (payload: Pick<RefreshToken, "userId">): string => {
+    return jwt.sign(payload, this.SECRET_KEY, { expiresIn: "2h" });
+  };
+
   signTokens = (payload: Pick<RefreshToken, "userId">): ITokenGeneratorSignResponse => {
     const refreshToken = jwt.sign(payload, this.SECRET_KEY, {
       expiresIn: process.env.REFRESH_EXPIRES_IN ?? "12h",
