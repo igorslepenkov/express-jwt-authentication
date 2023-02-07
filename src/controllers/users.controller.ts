@@ -35,6 +35,7 @@ class UsersController {
 
   async login(req: Request, res: Response): Promise<void> {
     const { status, body, message } = await usersService.loginUser(req.body);
+    console.log(status);
     if (status === 200 && body) {
       const jwtPacket = tokenGenerator.signTokens({ userId: body.id.toString() });
       const { access, refresh } = jwtPacket;
@@ -54,12 +55,7 @@ class UsersController {
       return;
     }
 
-    if (status === 400) {
-      res.status(400).send({ error: message });
-      return;
-    }
-
-    res.status(500).send({ error: "Unexpected error" });
+    res.status(status).send({ error: message });
   }
 
   async signOut(req: Request, res: Response): Promise<void> {
@@ -109,13 +105,13 @@ class UsersController {
 
       if (status === 200 && body) {
         await usersMailer.forgotPassword(body);
-        res.status(200).send("Password restoration email send");
+        res.status(200).send({ message: "Password restoration email send" });
         return;
       }
 
       res.status(status).send(message);
     } catch (err) {
-      res.status(500).send("Unexpected server error");
+      res.status(500).send({ error: "Unexpected server error" });
     }
   }
 
@@ -123,7 +119,7 @@ class UsersController {
     try {
       res.status(200).render("pages/resetPassword");
     } catch (err) {
-      res.status(500).send("Something gone wrong");
+      res.status(500).send({ error: "Something gone wrong" });
     }
   }
 
@@ -134,7 +130,7 @@ class UsersController {
       const { valid, payload } = tokenGenerator.isValid(token);
 
       if (!valid) {
-        res.status(401).send("Invalid token recieved");
+        res.status(401).send({ error: "Invalid token recieved" });
         return;
       }
 
@@ -159,13 +155,13 @@ class UsersController {
             return;
           }
 
-          res.status(sessionStatus).send("Could not start new session");
+          res.status(sessionStatus).send({ error: "Could not start new session" });
         }
 
         res.status(status).send(message);
       }
     } catch (err: any) {
-      res.status(500).send("Unexpected error occured");
+      res.status(500).send({ error: "Unexpected error occured" });
     }
   }
 }
