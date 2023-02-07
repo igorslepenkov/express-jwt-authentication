@@ -1,4 +1,5 @@
 import { Response, Request } from "express";
+import { usersMailer } from "../mailers";
 import { usersService, sessionsService } from "../services";
 import { tokenGenerator } from "../utils";
 
@@ -97,6 +98,74 @@ class UsersController {
       }
 
       res.status(401).send({ error: message ?? "Unexpected error" });
+    }
+  }
+
+  async forgotPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.body;
+
+      const { status, body, message } = await usersService.forgotPassword(email);
+
+      if (status === 200 && body) {
+        await usersMailer.forgotPassword(body);
+        res.status(200).send("Password restoration email send");
+        return;
+      }
+
+      res.status(status).send(message);
+    } catch (err) {
+      res.status(500).send("Unexpected server error");
+    }
+  }
+
+  async getResetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      res.status(200).render("pages/resetPassword");
+    } catch (err) {
+      res.status(500).send("Something gone wrong");
+    }
+  }
+
+  async postResetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { token } = req.params;
+
+      const { valid, payload } = tokenGenerator.isValid(token);
+
+      if (!valid) {
+        res.status(401).send("Invalid token recieved");
+        return;
+      }
+
+      if (valid && typeof payload === "object" && "userId" in payload) {
+        const { newPassword } = req.body;
+        const { userId } = payload;
+
+        const { status, message } = await usersService.resetPassword(userId, newPassword);
+
+        if (status === 200) {
+          const jwtPacket = tokenGenerator.signTokens({ userId });
+          const { access, refresh } = jwtPacket;
+
+          const { status: sessionStatus } = await sessionsService.sign({
+            ip: req.ip,
+            accessToken: access,
+            refreshToken: refresh,
+          });
+
+          if (sessionStatus === 200) {
+            res.status(200).send({ ...jwtPacket, message: "Password has been successfully reset" });
+            return;
+          }
+
+          res.status(sessionStatus).send("Could not start new session");
+        }
+
+        res.status(status).send(message);
+      }
+    } catch (err: any) {
+      res.status(500).send("Unexpected error occured");
     }
   }
 }

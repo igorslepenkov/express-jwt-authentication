@@ -27,3 +27,15 @@ export class LoginUserDTO {
   @Length(6)
   password: string;
 }
+
+export class ResetPasswordDTO {
+  @IsString()
+  @Length(6)
+  newPassword: string;
+}
+
+export class ForgotPasswordDTO {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+}
