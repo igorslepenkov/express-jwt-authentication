@@ -31,6 +31,13 @@ class SessionsService {
 
         if (refreshToken === persistedToken) {
           const jwtPack = tokenGenerator.signTokens({ userId });
+          const { access, refresh } = jwtPack;
+
+          await this.redisRepository.setSessionData(ip, {
+            ip,
+            accessToken: access,
+            refreshToken: refresh,
+          });
 
           return { status: 200, body: jwtPack, message: "Token refreshed" };
         }

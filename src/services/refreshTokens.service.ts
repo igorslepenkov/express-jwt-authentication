@@ -26,7 +26,6 @@ class RefreshTokenService {
 
       return { status: 500, message: "Unexpected error" };
     } catch (err: any) {
-      console.log(err);
       return { status: 500, message: err.message ?? "Unexpected error" };
     }
   }

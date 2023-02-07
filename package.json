@@ -8,7 +8,7 @@
     "start": "nodemon -r dotenv/config ./src/app.ts",
     "lint": "eslint -c .eslintrc.json --ext .ts,.tsx .",
     "build": "webpack",
-    "docker": "npm run build && docker build -t express-jwt-auth ."
+    "docker": "npm run build && docker compose up"
   },
   "repository": {
     "type": "git",

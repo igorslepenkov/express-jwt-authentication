@@ -4,11 +4,11 @@ import { User, RefreshToken } from "../entities";
 
 export const appDataSource = new DataSource({
   type: "postgres",
-  host: "localhost",
+  host: process.env.POSTGRES_HOST,
   port: 5432,
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
-  database: process.env.DATABASE,
+  database: process.env.POSTGRES_DB,
   entities: [User, RefreshToken],
   synchronize: true,
 });
