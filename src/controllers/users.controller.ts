@@ -158,7 +158,7 @@ class UsersController {
           res.status(sessionStatus).send({ error: "Could not start new session" });
         }
 
-        res.status(status).send(message);
+        res.status(status).send({ message });
       }
     } catch (err: any) {
       res.status(500).send({ error: "Unexpected error occured" });
