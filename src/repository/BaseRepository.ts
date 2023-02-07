@@ -1,14 +1,19 @@
 import {
   DeepPartial,
+  EntityTarget,
   FindManyOptions,
   FindOptionsWhere,
   ObjectLiteral,
   UpdateResult,
 } from "typeorm";
 import { dataSourceManager } from "../config";
-import { Repository } from "./Repository";
 
-export class BaseRepository<Type extends ObjectLiteral> extends Repository<Type> {
+export abstract class BaseRepository<Type extends ObjectLiteral> {
+  entity: EntityTarget<Type>;
+  constructor(typeormEntity: EntityTarget<Type>) {
+    this.entity = typeormEntity;
+  }
+
   public async create(plainObject: DeepPartial<Type>): Promise<Type> {
     const record = dataSourceManager.create(this.entity, plainObject);
     await dataSourceManager.save(record);
@@ -34,4 +39,6 @@ export class BaseRepository<Type extends ObjectLiteral> extends Repository<Type>
   public async remove<Type>(entity: Type): Promise<Type> {
     return await dataSourceManager.remove<Type>(entity);
   }
+
+  public abstract findOneById(id: string): Promise<Type | null>;
 }
