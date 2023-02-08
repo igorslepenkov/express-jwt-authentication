@@ -11,7 +11,6 @@ class TodosService {
         relations: { user: true },
         where: { user: { id: userId } },
       });
-
       if (records !== undefined) {
         return { status: 200, body: records.map((record) => todoMapper(record)), message: "Ok" };
       }

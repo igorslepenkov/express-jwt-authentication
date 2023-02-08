@@ -7,7 +7,6 @@ class TodosController {
 
     if (userId) {
       const { status, body, message } = await todosService.getAll(userId);
-
       if (body) {
         res.status(status).send({ todos: body });
         return;

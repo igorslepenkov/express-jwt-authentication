@@ -117,6 +117,238 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /users/forgotPas:
+    post:
+      summary: Takes email address and sends password restoration mail to user via SMTP
+      requestBody:
+        description: User's email address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPassword"
+      responses:
+        "200":
+          description: Email found in BD and restoration mail sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForgotPassswordSuccess"
+        "404":
+          description: Email is not found in DB
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected error occured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/resetPas/:token:
+    get:
+      summary: Renders page with form to reset password
+      responses:
+        "200":
+          description: Renders page
+          content:
+            html: {}
+        "500":
+          description: Unexpected error occured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /todos:
+    get:
+      summary: Gets all todos for current user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "All todos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAllTodosSuccess"
+        "400":
+          description: Error while getting todos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected error occured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Creates new todo
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Title and descriptions
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTodo"
+      responses:
+        "200":
+          description: Todo created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        "400":
+          description: Error while creating todo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected error occured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /todos/{id}:
+    get:
+      summary: Gets one todo of the current user by id
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the todo
+      responses:
+        "200":
+          description: "Todo"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        "400":
+          description: Error while getting todo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected error occured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      summary: Update todo
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the todo
+      requestBody:
+        description: Title or description of the todo
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTodo"
+      responses:
+        "200":
+          description: "Todo updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RequestSuccess"
+        "400":
+          description: Error while updating todo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected error occured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update todo
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the todo
+      requestBody:
+        description: Title and description of the todo
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTodo"
+      responses:
+        "200":
+          description: "Todo updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RequestSuccess"
+        "400":
+          description: Error while updating todo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected error occured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete todo
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the todo
+      responses:
+        "200":
+          description: "Todo deleted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RequestSuccess"
+        "400":
+          description: Error while deleting todo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected error occured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   securitySchemes:
@@ -125,12 +357,81 @@ components:
       scheme: bearer
 
   schemas:
+    Todo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: utf8
+        title:
+          type: string
+          format: utf8
+        description:
+          type: string
+          format: utf8
+        createDate:
+          type: string
+          format: utf8
+        updateDate:
+          type: string
+          format: utf8
+
+    GetAllTodosSuccess:
+      type: object
+      properties:
+        todos:
+          type: array
+          items:
+            $ref: "#/components/schemas/Todo"
+
+    CreateTodo:
+      type: object
+      properties:
+        title:
+          type: string
+          format: utf8
+        description:
+          type: string
+          format: utf8
+
+    UpdateTodo:
+      type: object
+      properties:
+        title:
+          type: string
+          format: utf8
+        description:
+          type: string
+          format: utf8
+
+    RequestSuccess:
+      type: object
+      properties:
+        message:
+          type: string
+          format: utf8
+
+    ForgotPassword:
+      type: object
+      properties:
+        email:
+          type: string
+          format: utf8
+
+    ForgotPassswordSuccess:
+      type: object
+      properties:
+        message:
+          type: string
+          format: utf8
+
     RefreshTokens:
       type: object
       properties:
         token:
           type: string
           format: utf8
+
     JwtPack:
       type: object
       properties:
@@ -143,18 +444,21 @@ components:
         message:
           type: string
           format: utf8
+
     Error:
       type: object
       properties:
         error:
           type: string
           format: utf8
+
     SignOutSuccess:
       type: object
       properties:
         message:
           type: object
           format: utf8
+
     RegisterRequest:
       type: object
       properties:
@@ -170,6 +474,7 @@ components:
         password:
           type: string
           format: utf8
+
     LoginRequest:
       type: object
       properties:
