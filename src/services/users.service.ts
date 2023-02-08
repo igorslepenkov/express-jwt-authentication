@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { IServiceResponse, UserModel } from "../types";
 import { LoginUserDTO, RegisterUserDTO } from "../entities/dto";
 import { usersRepository } from "../repository/postgres";
+import { User } from "../entities";
 
 class UsersService {
   private readonly usersRepository = usersRepository;
@@ -90,6 +91,19 @@ class UsersService {
       return { status: 400, message: "Password could not be reset" };
     } catch (err: any) {
       return { status: 500, message: "Password could not be reset due to unexpected error" };
+    }
+  }
+
+  async getUserById(id: string): Promise<IServiceResponse<User>> {
+    try {
+      const user = await this.usersRepository.findOneById(id);
+      if (user) {
+        return { status: 200, body: user, message: "OK" };
+      }
+
+      return { status: 404, message: "User could not be found" };
+    } catch (err: any) {
+      return { status: 500, message: err.message ?? "Unexpected error" };
     }
   }
 }

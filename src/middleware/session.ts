@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { sessionsService } from "../services";
 
-export const sessionModdleware = async (
+export const sessionMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction

@@ -5,8 +5,8 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import yaml from "yamljs";
 import { initDatasource } from "./config";
-import { authMiddleware, sessionModdleware } from "./middleware";
-import { usersRouter } from "./routes";
+import { authMiddleware, sessionMiddleware } from "./middleware";
+import { todosRouter, usersRouter } from "./routes";
 
 const app = express();
 app.set("trust proxy", true);
@@ -21,11 +21,12 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = process.env.PORT ?? 3000;
 
-app.get("/", authMiddleware, sessionModdleware, (req, res) => {
+app.get("/", authMiddleware, sessionMiddleware, (req, res) => {
   res.send("Hello world");
 });
 
 app.use("/users", usersRouter);
+app.use("/todos", todosRouter);
 
 async function initApp(): Promise<void> {
   await initDatasource();

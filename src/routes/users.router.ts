@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { makeValidateBody } from "express-class-validator";
 import { usersController } from "../controllers";
-import { authMiddleware, sessionModdleware } from "../middleware";
+import { authMiddleware, sessionMiddleware } from "../middleware";
 import {
   ForgotPasswordDTO,
   LoginUserDTO,
@@ -22,7 +22,7 @@ usersRouter.route("/login").all(makeValidateBody(LoginUserDTO)).post(usersContro
 usersRouter
   .route("/signOut")
   .all(authMiddleware)
-  .all(sessionModdleware)
+  .all(sessionMiddleware)
   .get(usersController.signOut);
 
 usersRouter
