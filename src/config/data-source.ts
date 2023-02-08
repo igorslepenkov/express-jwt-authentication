@@ -3,11 +3,12 @@ import { DataSource } from "typeorm";
 import { User, RefreshToken } from "../entities";
 
 export const appDataSource = new DataSource({
-  type: "mongodb",
-  host: "localhost",
-  url: process.env.MONGODB_URL ?? "mongodb://127.0.0.1:27017",
-  useNewUrlParser: true,
-  database: "authExample",
+  type: "postgres",
+  host: process.env.POSTGRES_HOST,
+  port: 5432,
+  username: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DB,
   entities: [User, RefreshToken],
   synchronize: true,
 });

@@ -1,10 +1,9 @@
-import { Entity, Column, ObjectIdColumn } from "typeorm";
-import { ObjectID } from "mongodb";
+import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class RefreshToken {
-  @ObjectIdColumn()
-  id: ObjectID;
+  @PrimaryGeneratedColumn()
+  id: string;
 
   @Column({ unique: true })
   userId: string;

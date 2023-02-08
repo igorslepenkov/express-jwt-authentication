@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { IServiceResponse, UserModel } from "../types";
 import { LoginUserDTO, RegisterUserDTO } from "../entities/dto";
-import { usersRepository } from "../repository/mongodb";
+import { usersRepository } from "../repository/postgres";
 
 class UsersService {
   private readonly usersRepository = usersRepository;

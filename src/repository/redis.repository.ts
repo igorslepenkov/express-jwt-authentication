@@ -18,7 +18,10 @@ interface ISetOptions {
 class RedisRepository {
   private readonly client: RedisClientType;
   constructor() {
-    this.client = createClient();
+    this.client =
+      process.env.NODE_ENV === "production"
+        ? createClient({ url: "redis://redis:6379" })
+        : createClient();
   }
 
   private calculateTimeInSeconds({

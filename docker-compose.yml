@@ -6,24 +6,36 @@ services:
     env_file:
       - .env
     environment:
-      - MONGODB_URL=mongodb://mongo:27017
+      - POSTGRES_HOST=postgres
     build: .
     ports:
       - ${PORT}:${PORT}
     networks:
       - express-jwt-app
     depends_on:
-      - mongo
+      - postgres
+      - redis
     restart: always
 
-  mongo:
-    container_name: mongo
-    image: mongo
+  postgres:
+    container_name: postgres
+    image: postgres
+    env_file:
+      - .env
     restart: always
     networks:
       - express-jwt-app
     ports:
-      - 27017:27017
+      - 5432:5432
+
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    networks:
+      - express-jwt-app
+    ports:
+      - 6379:6379
 
 networks:
   express-jwt-app:
