@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { User, RefreshToken } from "../entities";
+import { User, RefreshToken, Todo } from "../entities";
 
 export const appDataSource = new DataSource({
   type: "postgres",
@@ -9,11 +9,11 @@ export const appDataSource = new DataSource({
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  entities: [User, RefreshToken],
+  entities: [User, RefreshToken, Todo],
   synchronize: true,
 });
 
-export const initDatasource = async () => {
+export const initDatasource = async (): Promise<void> => {
   try {
     await appDataSource.initialize();
     console.log("Datasource initialized");

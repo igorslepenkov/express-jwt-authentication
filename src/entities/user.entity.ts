@@ -1,5 +1,6 @@
-import { Entity, Column, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, Index, PrimaryGeneratedColumn, OneToOne } from "typeorm";
 import { IsEmail, Length, IsNotEmpty, IsString } from "class-validator";
+import { Todo } from "./todo.entity";
 
 @Entity()
 export class User {
@@ -26,4 +27,7 @@ export class User {
   @IsString()
   @Length(6)
   password: string;
+
+  @OneToOne(() => Todo, (todo) => todo.user)
+  todos: Todo[];
 }

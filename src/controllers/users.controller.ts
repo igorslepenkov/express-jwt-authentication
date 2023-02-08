@@ -35,7 +35,6 @@ class UsersController {
 
   async login(req: Request, res: Response): Promise<void> {
     const { status, body, message } = await usersService.loginUser(req.body);
-    console.log(status);
     if (status === 200 && body) {
       const jwtPacket = tokenGenerator.signTokens({ userId: body.id.toString() });
       const { access, refresh } = jwtPacket;
