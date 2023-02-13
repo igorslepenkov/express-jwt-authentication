@@ -1,10 +1,12 @@
 import { Response, Request } from "express";
 import { usersMailer } from "../mailers";
 import { rabbitmqService, UsersOperation, SessionsOperation, RabbitMQQueue } from "../services";
-import { tokenGenerator } from "../utils";
+import { setRequestTimeout, tokenGenerator } from "../utils";
 
 class UsersController {
   async register(req: Request, res: Response): Promise<void> {
+    setRequestTimeout(10, res);
+
     await rabbitmqService.sendRequestToServiceAndConsume(
       RabbitMQQueue.Users,
       UsersOperation.Register,
@@ -48,6 +50,8 @@ class UsersController {
   }
 
   async login(req: Request, res: Response): Promise<void> {
+    setRequestTimeout(10, res);
+
     await rabbitmqService.sendRequestToServiceAndConsume(
       RabbitMQQueue.Users,
       UsersOperation.Login,
@@ -83,6 +87,8 @@ class UsersController {
   }
 
   async signOut(req: Request, res: Response): Promise<void> {
+    setRequestTimeout(10, res);
+
     const { userId } = req;
 
     if (userId) {
@@ -116,6 +122,8 @@ class UsersController {
   }
 
   async refreshToken(req: Request, res: Response): Promise<void> {
+    setRequestTimeout(10, res);
+
     const { token } = req.body;
     const { valid, payload } = tokenGenerator.isValid(token);
     if (valid && payload && token && typeof payload === "object" && "userId" in payload) {
@@ -141,93 +149,85 @@ class UsersController {
   }
 
   async forgotPassword(req: Request, res: Response): Promise<void> {
-    try {
-      const { email } = req.body;
+    setRequestTimeout(10, res);
 
-      await rabbitmqService.sendRequestToServiceAndConsume(
-        RabbitMQQueue.Users,
-        UsersOperation.ForgotPas,
-        async (data) => {
-          const { status, body, message } = data;
+    const { email } = req.body;
 
-          if (status === 200 && body) {
-            await usersMailer.forgotPassword(body);
-            res.status(200).send({ message: "Password restoration email send" });
-            return;
-          }
+    await rabbitmqService.sendRequestToServiceAndConsume(
+      RabbitMQQueue.Users,
+      UsersOperation.ForgotPas,
+      async (data) => {
+        const { status, body, message } = data;
 
-          res.status(status).send(message);
-        },
-        { email }
-      );
-    } catch (err) {
-      res.status(500).send({ error: "Unexpected server error" });
-    }
+        if (status === 200 && body) {
+          await usersMailer.forgotPassword(body);
+          res.status(200).send({ message: "Password restoration email send" });
+          return;
+        }
+
+        res.status(status).send(message);
+      },
+      { email }
+    );
   }
 
   async getResetPassword(req: Request, res: Response): Promise<void> {
-    try {
-      res.status(200).render("pages/resetPassword");
-    } catch (err) {
-      res.status(500).send({ error: "Something gone wrong" });
-    }
+    res.status(200).render("pages/resetPassword");
   }
 
   async postResetPassword(req: Request, res: Response): Promise<void> {
-    try {
-      const { token } = req.params;
+    setRequestTimeout(10, res);
 
-      const { valid, payload } = tokenGenerator.isValid(token);
+    const { token } = req.params;
 
-      if (!valid) {
-        res.status(401).send({ error: "Invalid token recieved" });
-        return;
-      }
+    const { valid, payload } = tokenGenerator.isValid(token);
 
-      if (valid && typeof payload === "object" && "userId" in payload) {
-        const { newPassword } = req.body;
-        const { userId } = payload;
+    if (!valid) {
+      res.status(401).send({ error: "Invalid token recieved" });
+      return;
+    }
 
-        await rabbitmqService.sendRequestToServiceAndConsume(
-          RabbitMQQueue.Users,
-          UsersOperation.ResetPas,
-          async (data) => {
-            const { status, message } = data;
+    if (valid && typeof payload === "object" && "userId" in payload) {
+      const { newPassword } = req.body;
+      const { userId } = payload;
 
-            if (status === 200) {
-              const jwtPacket = tokenGenerator.signTokens({ userId });
-              const { access, refresh } = jwtPacket;
+      await rabbitmqService.sendRequestToServiceAndConsume(
+        RabbitMQQueue.Users,
+        UsersOperation.ResetPas,
+        async (data) => {
+          const { status, message } = data;
 
-              await rabbitmqService.sendRequestToServiceAndConsume(
-                RabbitMQQueue.Sessions,
-                SessionsOperation.Sign,
-                (sessionsServiceData) => {
-                  const { status: sessionStatus } = sessionsServiceData;
+          if (status === 200) {
+            const jwtPacket = tokenGenerator.signTokens({ userId });
+            const { access, refresh } = jwtPacket;
 
-                  if (sessionStatus === 200) {
-                    res
-                      .status(200)
-                      .send({ ...jwtPacket, message: "Password has been successfully reset" });
-                    return;
-                  }
+            await rabbitmqService.sendRequestToServiceAndConsume(
+              RabbitMQQueue.Sessions,
+              SessionsOperation.Sign,
+              (sessionsServiceData) => {
+                const { status: sessionStatus } = sessionsServiceData;
 
-                  res.status(sessionStatus).send({ error: "Could not start new session" });
-                },
-                {
-                  ip: req.ip,
-                  accessToken: access,
-                  refreshToken: refresh,
+                if (sessionStatus === 200) {
+                  res
+                    .status(200)
+                    .send({ ...jwtPacket, message: "Password has been successfully reset" });
+                  return;
                 }
-              );
-            } else {
-              res.status(status).send({ message });
-            }
-          },
-          { id: userId, newPassword }
-        );
-      }
-    } catch (err: any) {
-      res.status(500).send({ error: "Unexpected error occured" });
+
+                res.status(sessionStatus).send({ error: "Could not start new session" });
+              },
+              {
+                ip: req.ip,
+                accessToken: access,
+                refreshToken: refresh,
+              }
+            );
+          } else {
+            res.status(status).send({ message });
+          }
+        },
+        { id: userId, newPassword }
+      );
     }
   }
 }

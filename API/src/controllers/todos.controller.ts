@@ -1,8 +1,11 @@
 import { Response, Request } from "express";
 import { RabbitMQQueue, rabbitmqService, TodosOperation, UsersOperation } from "../services";
+import { setRequestTimeout } from "../utils";
 
 class TodosController {
   async index(req: Request, res: Response): Promise<void> {
+    setRequestTimeout(10, res);
+
     const { userId } = req;
 
     if (userId) {
@@ -23,6 +26,8 @@ class TodosController {
   }
 
   async show(req: Request, res: Response): Promise<void> {
+    setRequestTimeout(10, res);
+
     const { userId } = req;
 
     if (userId) {
@@ -46,6 +51,8 @@ class TodosController {
   }
 
   async create(req: Request, res: Response): Promise<void> {
+    setRequestTimeout(10, res);
+
     const { userId } = req;
 
     if (userId) {
@@ -83,6 +90,8 @@ class TodosController {
   }
 
   async update(req: Request, res: Response): Promise<void> {
+    setRequestTimeout(10, res);
+
     const { userId } = req;
 
     if (userId) {
@@ -106,6 +115,8 @@ class TodosController {
   }
 
   async delete(req: Request, res: Response): Promise<void> {
+    setRequestTimeout(10, res);
+
     const { userId } = req;
 
     if (userId) {
