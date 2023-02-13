@@ -1,5 +1,5 @@
 {
-  "include": ["./src"],
+  "include": ["./Sessions", "./Users", "./Todos", "./API"],
 
   "ts-node": {
     "files": true
