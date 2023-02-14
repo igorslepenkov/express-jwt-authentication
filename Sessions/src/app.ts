@@ -28,12 +28,15 @@ const handleRequest = async (request: IApiRequest): Promise<IServiceResponse | u
 
 async function initApp(): Promise<void> {
   app.listen(PORT);
-  await rabbitmqService.handleApiRequests("Sessions", async (data) => {
-    const response = await handleRequest(data);
-    if (response) {
-      return response;
-    }
-  });
+
+  setTimeout(async () => {
+    await rabbitmqService.handleApiRequests("Sessions", async (data) => {
+      const response = await handleRequest(data);
+      if (response) {
+        return response;
+      }
+    });
+  }, 1000);
 
   console.log(`Sessions service listening on port ${PORT}`);
 }

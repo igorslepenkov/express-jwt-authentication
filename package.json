@@ -5,6 +5,14 @@
     "start:todos": "npm --prefix ./todos/ run start",
     "start:sessions": "npm --prefix ./sessions/ run start",
     "start:users": "npm --prefix ./users/ run start",
+    "build:api": "npm --prefix ./api/ run build",
+    "build:todos": "npm --prefix ./todos/ run build",
+    "build:sessions": "npm --prefix ./sessions/ run build",
+    "build:users": "npm --prefix ./users/ run build",
+    "migrate:todos": "npm --prefix ./todos/ run migrate",
+    "migrate:users": "npm --prefix ./users/ run migrate",
+    "migrate": "concurrently npm:migrate:*",
+    "docker": "concurrently npm:build:* && docker compose up -d",
     "lint": "eslint -c .eslintrc.json --ext .ts,.tsx ."
   },
   "devDependencies": {

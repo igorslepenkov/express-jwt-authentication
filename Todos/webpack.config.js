@@ -22,5 +22,5 @@ module.exports = {
     ],
   },
   externalsPresets: { node: true },
-  externals: [nodeExternals()],
+  externals: [nodeExternals(), "./src/migrations"],
 };

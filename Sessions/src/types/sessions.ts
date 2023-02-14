@@ -7,10 +7,12 @@ export interface ISession {
 export interface ISessionValidResponse {
   isValid: true;
   message: string;
-  body: ISession;
+  session: ISession;
 }
 
 export interface ISessionNotValidResponse {
   isValid: false;
   message: string;
 }
+
+export type ISessionValidationResponse = ISessionValidResponse | ISessionNotValidResponse;

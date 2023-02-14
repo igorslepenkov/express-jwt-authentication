@@ -1,30 +1,75 @@
 version: "3.1"
 
 services:
-  app:
-    container_name: express-jwt-auth
+  api:
+    container_name: apiModule
     env_file:
-      - .env
-    environment:
-      - POSTGRES_HOST=postgres
-    build: .
+      - ./api/.env
+    build: ./api/
     ports:
-      - ${PORT}:${PORT}
+      - ${API_PORT}:${API_PORT}
     networks:
-      - express-jwt-app
+      - express-todolist
     depends_on:
       - postgres
       - redis
+      - rabbitmq
+    restart: always
+
+  sessions:
+    container_name: sessionsModule
+    env_file:
+      - ./sessions/.env
+    build: ./sessions/
+    ports:
+      - ${SESSIONS_PORT}:${SESSIONS_PORT}
+    networks:
+      - express-todolist
+    depends_on:
+      - redis
+      - rabbitmq
+    restart: always
+
+  todos:
+    container_name: todosModule
+    env_file:
+      - ./todos/.env
+    environment:
+      - POSTGRES_HOST=postgres
+    build: ./todos/
+    ports:
+      - ${TODOS_PORT}:${TODOS_PORT}
+    networks:
+      - express-todolist
+    depends_on:
+      - postgres
+      - rabbitmq
+    restart: always
+
+  users:
+    container_name: usersModule
+    env_file:
+      - ./users/.env
+    environment:
+      - POSTGRES_HOST=postgres
+    build: ./users/
+    ports:
+      - ${USERS_PORT}:${USERS_PORT}
+    networks:
+      - express-todolist
+    depends_on:
+      - postgres
+      - rabbitmq
     restart: always
 
   postgres:
-    container_name: postgres
+    container_name: postgresUsersTodos
     image: postgres
     env_file:
-      - .env
+      - ./api/.env
     restart: always
     networks:
-      - express-jwt-app
+      - express-todolist
     ports:
       - 5432:5432
 
@@ -33,9 +78,18 @@ services:
     image: redis
     restart: always
     networks:
-      - express-jwt-app
+      - express-todolist
     ports:
       - 6379:6379
 
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:management-alpine
+    restart: always
+    networks:
+      - express-todolist
+    ports:
+      - 5672:5672
+
 networks:
-  express-jwt-app:
+  express-todolist:

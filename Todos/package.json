@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon -r dotenv/config ./src/app.ts",
     "lint": "eslint -c .eslintrc.json --ext .ts,.tsx .",
-    "build": "webpack",
+    "build": "tsc",
+    "migrate": "npx typeorm-ts-node-esm migration:run -d ./src/config/data-source.ts",
     "docker": "npm run build && docker compose up"
   },
   "repository": {

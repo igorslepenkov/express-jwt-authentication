@@ -11,10 +11,14 @@ class UsersService {
     try {
       const { usersRepository } = this;
 
+      console.log(userData);
+
       const user = await usersRepository.create({
         ...userData,
         password: bcrypt.hashSync(userData.password),
       });
+
+      console.log(user);
 
       const { password, ...userSafeProperties } = user;
 

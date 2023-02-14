@@ -51,9 +51,11 @@ class RabbitMQService {
   private static channel: amqp.Channel;
 
   private static async init(): Promise<void> {
+    const host = process.env.NODE_ENV === "production" ? "rabbitmq" : "localhost";
+
     RabbitMQService.connection =
       RabbitMQService.connection ??
-      (await amqp.connect(`amqp://localhost:${process.env.RABBIT_MQ_PORT}`));
+      (await amqp.connect(`amqp://${host}:${process.env.RABBIT_MQ_PORT}`));
 
     RabbitMQService.channel =
       RabbitMQService.channel ?? (await RabbitMQService.connection.createChannel());

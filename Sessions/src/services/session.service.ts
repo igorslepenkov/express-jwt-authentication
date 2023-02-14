@@ -1,8 +1,7 @@
 import { redisService } from "./redis.service";
-import { IServiceResponse } from "../types";
+import { IServiceResponse, ISessionValidationResponse } from "../types";
 import { SessionDTO } from "../entities/dto";
 import { tokenGenerator } from "../utils";
-import { ISessionValidationResponse } from "../../../API/src/types";
 
 class SessionsService {
   private readonly redisService = redisService;

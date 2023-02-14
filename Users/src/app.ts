@@ -41,12 +41,14 @@ async function initApp(): Promise<void> {
   app.listen(PORT);
   await initDatasource();
 
-  await rabbitmqService.handleApiRequests("Users", async (data) => {
-    const response = await handleRequest(data);
-    if (response) {
-      return response;
-    }
-  });
+  setTimeout(async () => {
+    await rabbitmqService.handleApiRequests("Users", async (data) => {
+      const response = await handleRequest(data);
+      if (response) {
+        return response;
+      }
+    });
+  }, 1000);
 
   console.log(`Users service listening on port ${PORT}`);
 }
