@@ -1,10 +1,4 @@
 {
-  "include": ["./Sessions", "./Users", "./Todos", "./API"],
-
-  "ts-node": {
-    "files": true
-  },
-
   "compilerOptions": {
     "target": "es2016",
     "module": "commonjs",
@@ -14,6 +8,9 @@
     "skipLibCheck": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "strictPropertyInitialization": false
-  }
+    "strictPropertyInitialization": false,
+    "rootDir": "./",
+    "outDir": "./dist"
+  },
+  "include": ["./src"]
 }

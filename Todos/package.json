@@ -1,0 +1,48 @@
+{
+  "name": "express-jwt-authentication",
+  "version": "1.s0.0",
+  "description": "simple authentication system with express and JWT",
+  "main": "./src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon -r dotenv/config ./src/app.ts",
+    "lint": "eslint -c .eslintrc.json --ext .ts,.tsx .",
+    "build": "tsc",
+    "migrate": "npx typeorm-ts-node-esm migration:run -d ./src/config/data-source.ts",
+    "docker": "npm run build && docker compose up"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/igorslepenkov/express-jwt-authentication.git"
+  },
+  "keywords": [
+    "JWT",
+    "authentication"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/igorslepenkov/express-jwt-authentication/issues"
+  },
+  "homepage": "https://github.com/igorslepenkov/express-jwt-authentication#readme",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-class-validator": "^1.0.3",
+    "jsonwebtoken": "^9.0.0",
+    "pg": "^8.9.0",
+    "typeorm": "^0.3.11"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.1",
+    "@types/express": "^4.17.15",
+    "@types/jsonwebtoken": "^9.0.1",
+    "nodemon": "^2.0.20",
+    "ts-loader": "^9.4.2",
+    "ts-node": "^10.9.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-node-externals": "^3.0.0"
+  }
+}
