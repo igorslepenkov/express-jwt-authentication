@@ -40,7 +40,7 @@ class TodosController {
           const { status, body, message } = data;
 
           if (body) {
-            res.status(status).send({ todos: body });
+            res.status(status).send({ todo: body });
           } else {
             res.status(status).send({ error: message });
           }
