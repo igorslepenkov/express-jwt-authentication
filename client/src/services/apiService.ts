@@ -110,7 +110,7 @@ class ApiService {
   async deleteTodo(id: string, userToken: string): Promise<IDeleteTodoSuccess> {
     const url = createDinamicUrlString(Endpoint.Todo, { id });
 
-    const { data } = await this.API.get<IDeleteTodoSuccess>(url, {
+    const { data } = await this.API.delete<IDeleteTodoSuccess>(url, {
       headers: { Authorization: `Bearer ${userToken}` },
     });
 

@@ -8,10 +8,12 @@ export interface ITodo {
 
 export interface IIndexTodosSuccess {
   todos: ITodo[];
+  message: string;
 }
 
 export interface ITodoSuccess {
   todo: ITodo;
+  message: string;
 }
 
 export interface ICreateTodo {

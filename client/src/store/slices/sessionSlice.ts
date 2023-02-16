@@ -5,6 +5,7 @@ import {
   isPending,
   isRejected,
 } from "@reduxjs/toolkit";
+import { AxiosError } from "axios";
 import { apiService } from "../../services";
 import {
   IAuthUserSuccess,
@@ -16,14 +17,16 @@ import {
 } from "../../types";
 import { RootState } from "../store";
 
-export interface SessionSlice {
+export interface ISessionSlice {
   session: IUserSession | null;
+  message: string | null;
   isLoading: boolean;
   error: string | null;
 }
 
-const initialState: SessionSlice = {
+const initialState: ISessionSlice = {
   session: null,
+  message: null,
   isLoading: false,
   error: null,
 };
@@ -38,12 +41,8 @@ const registerUser = createAsyncThunk<
 
     return result;
   } catch (err: any) {
-    if (typeof err === "string") {
-      return rejectWithValue(err);
-    }
-
-    if ("error" in err) {
-      return rejectWithValue(err.error);
+    if (err instanceof AxiosError && err.response) {
+      return rejectWithValue(err.response.data.error);
     }
 
     return rejectWithValue(err.message);
@@ -60,12 +59,8 @@ const loginUser = createAsyncThunk<
 
     return result;
   } catch (err: any) {
-    if (typeof err === "string") {
-      return rejectWithValue(err);
-    }
-
-    if ("error" in err) {
-      return rejectWithValue(err.error);
+    if (err instanceof AxiosError && err.response) {
+      return rejectWithValue(err.response.data.error);
     }
 
     return rejectWithValue(err.message);
@@ -76,7 +71,7 @@ const signOutUser = createAsyncThunk<
   ISignOutUserSuccess,
   undefined,
   { rejectValue: string; state: RootState }
->("session/login", async (_, { rejectWithValue, getState }) => {
+>("session/signOut", async (_, { rejectWithValue, getState }) => {
   try {
     const {
       sessions: { session },
@@ -90,12 +85,8 @@ const signOutUser = createAsyncThunk<
 
     return rejectWithValue("User is not signed in");
   } catch (err: any) {
-    if (typeof err === "string") {
-      return rejectWithValue(err);
-    }
-
-    if ("error" in err) {
-      return rejectWithValue(err.error);
+    if (err instanceof AxiosError && err.response) {
+      return rejectWithValue(err.response.data.error);
     }
 
     return rejectWithValue(err.message);
@@ -106,7 +97,7 @@ const refreshSession = createAsyncThunk<
   IAuthUserSuccess,
   undefined,
   { rejectValue: string; state: RootState }
->("session/login", async (_, { rejectWithValue, getState }) => {
+>("session/refresh", async (_, { rejectWithValue, getState }) => {
   try {
     const {
       sessions: { session },
@@ -120,12 +111,8 @@ const refreshSession = createAsyncThunk<
 
     return rejectWithValue("User is not signed in");
   } catch (err: any) {
-    if (typeof err === "string") {
-      return rejectWithValue(err);
-    }
-
-    if ("error" in err) {
-      return rejectWithValue(err.error);
+    if (err instanceof AxiosError && err.response) {
+      return rejectWithValue(err.response.data.error);
     }
 
     return rejectWithValue(err.message);
@@ -136,7 +123,7 @@ const resetPassword = createAsyncThunk<
   IAuthUserSuccess,
   IResetPassword & { token: string },
   { rejectValue: string; state: RootState }
->("session/login", async (data, { rejectWithValue }) => {
+>("session/resetPas", async (data, { rejectWithValue }) => {
   try {
     const { token, newPassword } = data;
 
@@ -144,12 +131,8 @@ const resetPassword = createAsyncThunk<
 
     return result;
   } catch (err: any) {
-    if (typeof err === "string") {
-      return rejectWithValue(err);
-    }
-
-    if ("error" in err) {
-      return rejectWithValue(err.error);
+    if (err instanceof AxiosError && err.response) {
+      return rejectWithValue(err.response.data.error);
     }
 
     return rejectWithValue(err.message);
@@ -161,8 +144,9 @@ const sessionsSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers(builder) {
-    builder.addCase(registerUser.fulfilled, (state, { payload }) => {
-      state.session = payload;
+    builder.addCase(registerUser.fulfilled, (state, { payload: { access, refresh, message } }) => {
+      state.session = { refresh, access };
+      state.message = message;
     });
 
     builder.addCase(registerUser.rejected, (state, { payload }) => {
@@ -171,8 +155,9 @@ const sessionsSlice = createSlice({
       }
     });
 
-    builder.addCase(loginUser.fulfilled, (state, { payload }) => {
-      state.session = payload;
+    builder.addCase(loginUser.fulfilled, (state, { payload: { access, refresh, message } }) => {
+      state.session = { access, refresh };
+      state.message = message;
     });
 
     builder.addCase(loginUser.rejected, (state, { payload }) => {
@@ -181,7 +166,8 @@ const sessionsSlice = createSlice({
       }
     });
 
-    builder.addCase(signOutUser.fulfilled, (state) => {
+    builder.addCase(signOutUser.fulfilled, (state, { payload: { message } }) => {
+      state.message = message;
       state.session = null;
     });
 
@@ -191,8 +177,9 @@ const sessionsSlice = createSlice({
       }
     });
 
-    builder.addCase(resetPassword.fulfilled, (state, { payload }) => {
-      state.session = payload;
+    builder.addCase(resetPassword.fulfilled, (state, { payload: { access, refresh, message } }) => {
+      state.session = { access, refresh };
+      state.message = message;
     });
 
     builder.addCase(resetPassword.rejected, (state, { payload }) => {
@@ -201,9 +188,13 @@ const sessionsSlice = createSlice({
       }
     });
 
-    builder.addCase(refreshSession.fulfilled, (state, { payload }) => {
-      state.session = payload;
-    });
+    builder.addCase(
+      refreshSession.fulfilled,
+      (state, { payload: { access, refresh, message } }) => {
+        state.session = { access, refresh };
+        state.message = message;
+      }
+    );
 
     builder.addCase(refreshSession.rejected, (state, { payload }) => {
       if (payload) {
@@ -214,6 +205,7 @@ const sessionsSlice = createSlice({
     builder.addMatcher(isPending(), (state) => {
       state.isLoading = true;
       state.error = null;
+      state.message = null;
     });
 
     builder.addMatcher(isFulfilled(), (state) => {

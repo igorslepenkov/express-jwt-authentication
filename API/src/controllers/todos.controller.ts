@@ -15,7 +15,7 @@ class TodosController {
         async (data) => {
           const { status, body, message } = data;
           if (body) {
-            res.status(status).send({ todos: body });
+            res.status(status).send({ todos: body, message });
           } else {
             res.status(status).send({ error: message });
           }
@@ -40,7 +40,7 @@ class TodosController {
           const { status, body, message } = data;
 
           if (body) {
-            res.status(status).send({ todo: body });
+            res.status(status).send({ todo: body, message });
           } else {
             res.status(status).send({ error: message });
           }
@@ -72,7 +72,7 @@ class TodosController {
                 const { status: todoStatus, body: todo, message: todoMessage } = todosServiceData;
 
                 if (todo) {
-                  res.status(todoStatus).send({ todo });
+                  res.status(todoStatus).send({ todo, message: todoMessage });
                   return;
                 }
 

@@ -1,10 +1,11 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
-import { sessionsSlice, todosSlice } from "./slices";
+import { modalSlice, sessionsSlice, todosSlice } from "./slices";
 
 export const store = configureStore({
   reducer: {
     todos: todosSlice,
     sessions: sessionsSlice,
+    modal: modalSlice,
   },
 });
 

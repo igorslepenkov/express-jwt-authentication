@@ -2,7 +2,12 @@ import { AppBar, Button, Toolbar, Typography } from "@mui/material";
 import { ROUTE } from "../../router";
 import { LinkWithoutStyles } from "../LinkWithoutStyles";
 
-export const Header = () => {
+interface IProps {
+  toggleRegisterModal: () => void;
+  toggleLoginModal: () => void;
+}
+
+export const Header = ({ toggleRegisterModal, toggleLoginModal }: IProps) => {
   return (
     <AppBar position="static" color="secondary">
       <Toolbar>
@@ -10,9 +15,12 @@ export const Header = () => {
           <LinkWithoutStyles to={ROUTE.Home}>Express Todolist</LinkWithoutStyles>
         </Typography>
 
-        <Button color="inherit">Characters</Button>
-        <Button color="inherit">Locations</Button>
-        <Button color="inherit">Episodes</Button>
+        <Button color="inherit" onClick={toggleRegisterModal}>
+          Register
+        </Button>
+        <Button color="inherit" onClick={toggleLoginModal}>
+          Login
+        </Button>
       </Toolbar>
     </AppBar>
   );

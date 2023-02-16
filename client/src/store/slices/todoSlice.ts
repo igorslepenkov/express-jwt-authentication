@@ -5,6 +5,7 @@ import {
   isPending,
   isRejected,
 } from "@reduxjs/toolkit";
+import { AxiosError } from "axios";
 import { apiService } from "../../services";
 import {
   ICreateTodo,
@@ -17,14 +18,16 @@ import {
 } from "../../types";
 import { RootState } from "../store";
 
-export interface TodosSlice {
+export interface ITodosSlice {
   todos: Array<ITodo>;
+  message: string | null;
   isLoading: boolean;
   error: string | null;
 }
 
-const initialState: TodosSlice = {
+const initialState: ITodosSlice = {
   todos: [],
+  message: null,
   isLoading: false,
   error: null,
 };
@@ -45,12 +48,8 @@ const fetchTodos = createAsyncThunk<
 
     return rejectWithValue("User is not signed in");
   } catch (err: any) {
-    if (typeof err === "string") {
-      return rejectWithValue(err);
-    }
-
-    if ("error" in err) {
-      return rejectWithValue(err.error);
+    if (err instanceof AxiosError && err.response) {
+      return rejectWithValue(err.response.data.error);
     }
 
     return rejectWithValue(err.message);
@@ -73,12 +72,8 @@ const createTodo = createAsyncThunk<
 
     return rejectWithValue("User is not signed in");
   } catch (err: any) {
-    if (typeof err === "string") {
-      return rejectWithValue(err);
-    }
-
-    if ("error" in err) {
-      return rejectWithValue(err.error);
+    if (err instanceof AxiosError && err.response) {
+      return rejectWithValue(err.response.data.error);
     }
 
     return rejectWithValue(err.message);
@@ -89,7 +84,7 @@ const updateTodo = createAsyncThunk<
   IUpdateTodoSuccess & IUpdateTodo & { id: string },
   IUpdateTodo & { id: string },
   { rejectValue: string; state: RootState }
->("todos/create", async (data, { rejectWithValue, getState }) => {
+>("todos/update", async (data, { rejectWithValue, getState }) => {
   try {
     const {
       sessions: { session: currentSession },
@@ -104,12 +99,8 @@ const updateTodo = createAsyncThunk<
 
     return rejectWithValue("User is not signed in");
   } catch (err: any) {
-    if (typeof err === "string") {
-      return rejectWithValue(err);
-    }
-
-    if ("error" in err) {
-      return rejectWithValue(err.error);
+    if (err instanceof AxiosError && err.response) {
+      return rejectWithValue(err.response.data.error);
     }
 
     return rejectWithValue(err.message);
@@ -120,7 +111,7 @@ const deleteTodo = createAsyncThunk<
   IDeleteTodoSuccess & { id: string },
   string,
   { rejectValue: string; state: RootState }
->("todos/create", async (id, { rejectWithValue, getState }) => {
+>("todos/delete", async (id, { rejectWithValue, getState }) => {
   try {
     const {
       sessions: { session: currentSession },
@@ -134,12 +125,8 @@ const deleteTodo = createAsyncThunk<
 
     return rejectWithValue("User is not signed in");
   } catch (err: any) {
-    if (typeof err === "string") {
-      return rejectWithValue(err);
-    }
-
-    if ("error" in err) {
-      return rejectWithValue(err.error);
+    if (err instanceof AxiosError && err.response) {
+      return rejectWithValue(err.response.data.error);
     }
 
     return rejectWithValue(err.message);
@@ -151,8 +138,9 @@ export const todosSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers(builder) {
-    builder.addCase(fetchTodos.fulfilled, (state, { payload }) => {
-      state.todos = payload.todos;
+    builder.addCase(fetchTodos.fulfilled, (state, { payload: { todos, message } }) => {
+      state.todos = todos;
+      state.message = message;
     });
 
     builder.addCase(fetchTodos.rejected, (state, { payload }) => {
@@ -161,8 +149,9 @@ export const todosSlice = createSlice({
       }
     });
 
-    builder.addCase(createTodo.fulfilled, (state, { payload }) => {
-      state.todos.push(payload.todo);
+    builder.addCase(createTodo.fulfilled, (state, { payload: { todo, message } }) => {
+      state.todos.push(todo);
+      state.message = message;
     });
 
     builder.addCase(createTodo.rejected, (state, { payload }) => {
@@ -171,19 +160,24 @@ export const todosSlice = createSlice({
       }
     });
 
-    builder.addCase(updateTodo.fulfilled, (state, { payload: { id, title, description } }) => {
-      const todo = state.todos.find((todo) => todo.id === id);
+    builder.addCase(
+      updateTodo.fulfilled,
+      (state, { payload: { id, title, description, message } }) => {
+        const todo = state.todos.find((todo) => todo.id === id);
 
-      if (todo) {
-        if (title) {
-          todo.title = title;
+        if (todo) {
+          if (title) {
+            todo.title = title;
+          }
+
+          if (description) {
+            todo.description = description;
+          }
         }
 
-        if (description) {
-          todo.description = description;
-        }
+        state.message = message;
       }
-    });
+    );
 
     builder.addCase(updateTodo.rejected, (state, { payload }) => {
       if (payload) {
@@ -191,8 +185,9 @@ export const todosSlice = createSlice({
       }
     });
 
-    builder.addCase(deleteTodo.fulfilled, (state, { payload }) => {
-      state.todos = state.todos.filter((todo) => todo.id !== payload.id);
+    builder.addCase(deleteTodo.fulfilled, (state, { payload: { message, id } }) => {
+      state.todos = state.todos.filter((todo) => todo.id === id);
+      state.message = message;
     });
 
     builder.addCase(deleteTodo.rejected, (state, { payload }) => {
@@ -204,6 +199,7 @@ export const todosSlice = createSlice({
     builder.addMatcher(isPending(), (state) => {
       state.isLoading = true;
       state.error = null;
+      state.message = null;
     });
 
     builder.addMatcher(isFulfilled(), (state) => {
@@ -217,3 +213,4 @@ export const todosSlice = createSlice({
 });
 
 export default todosSlice.reducer;
+export { fetchTodos, createTodo, updateTodo, deleteTodo };
