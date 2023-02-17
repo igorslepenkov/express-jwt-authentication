@@ -9,6 +9,7 @@
     "build:todos": "npm --prefix ./todos/ run build",
     "build:sessions": "npm --prefix ./sessions/ run build",
     "build:users": "npm --prefix ./users/ run build",
+    "build:client": "npm --prefix ./client run build",
     "migrate:todos": "npm --prefix ./todos/ run migrate",
     "migrate:users": "npm --prefix ./users/ run migrate",
     "migrate": "concurrently npm:migrate:*",

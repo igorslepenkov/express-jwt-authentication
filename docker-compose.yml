@@ -1,6 +1,25 @@
 version: "3.1"
 
 services:
+  client:
+    container_name: client
+    env_file:
+      - ./client/.env
+    build: ./client/
+    ports:
+      - ${CLIENT_PORT}:${CLIENT_PORT}
+    networks:
+      - express-todolist
+    depends_on:
+      - api
+      - sessions
+      - todos
+      - users
+      - postgres
+      - redis
+      - rabbitmq
+    restart: always
+
   api:
     container_name: apiModule
     env_file:
