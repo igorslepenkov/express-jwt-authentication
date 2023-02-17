@@ -2,15 +2,11 @@ import { Container } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { TodoList } from "../../components";
-import { AddNewTodoForm } from "../../components/AddNewTodoForm";
-import { useToggle } from "../../hook";
 import { useAppSelector } from "../../store";
 import { selectCurrentSession } from "../../store/selectors";
 
 export const Homepage = () => {
   const currentSession = useAppSelector(selectCurrentSession);
-
-  const [isAddNewTodoFormOpen, toggleAddNewTodoForm] = useToggle();
 
   if (!currentSession) {
     return (
@@ -36,10 +32,6 @@ export const Homepage = () => {
     );
   }
 
-  if (isAddNewTodoFormOpen) {
-    return <AddNewTodoForm closeForm={toggleAddNewTodoForm} />;
-  }
-
   return (
     <Container
       sx={(theme) => ({
@@ -51,7 +43,7 @@ export const Homepage = () => {
       <Typography variant="h4" color="darkBlue" sx={{ margin: "30px 0" }}>
         Todo List:
       </Typography>
-      <TodoList toggleAddForm={toggleAddNewTodoForm} />
+      <TodoList />
     </Container>
   );
 };

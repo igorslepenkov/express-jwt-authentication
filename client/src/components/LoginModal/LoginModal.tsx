@@ -1,8 +1,12 @@
 import { Button, Modal, Paper, TextField, Typography } from "@mui/material";
+import { Box } from "@mui/system";
 import { useForm, Controller } from "react-hook-form";
+import { resolvePath } from "react-router-dom";
+import { ROUTE } from "../../router";
 import { loginUser, useAppDispatch } from "../../store";
 import { ILoginUser } from "../../types";
 import { emailRegex } from "../../utils";
+import { LinkWithoutStyles } from "../LinkWithoutStyles";
 
 interface IProps {
   isOpen: boolean;
@@ -53,7 +57,7 @@ export const LoginModal = ({ isOpen, handleModal }: IProps) => {
           },
         })}
       >
-        <Typography variant="h4" component="div" color="secondary" sx={{ flexGrow: 1 }}>
+        <Typography variant="h4" color="secondary">
           Login
         </Typography>
 
@@ -102,6 +106,18 @@ export const LoginModal = ({ isOpen, handleModal }: IProps) => {
             />
           )}
         />
+
+        <Box onClick={handleModal}>
+          <LinkWithoutStyles to={resolvePath(ROUTE.ForgotPas, ROUTE.Users)}>
+            <Typography
+              variant="overline"
+              color="primary"
+              sx={{ margin: "30px 0", textDecoration: "underline" }}
+            >
+              Forgot Password
+            </Typography>
+          </LinkWithoutStyles>
+        </Box>
 
         <Button color="secondary" variant="contained" type="submit" size="large">
           Submit

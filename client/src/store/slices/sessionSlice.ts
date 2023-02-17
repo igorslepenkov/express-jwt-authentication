@@ -9,6 +9,8 @@ import { AxiosError } from "axios";
 import { apiService } from "../../services";
 import {
   IAuthUserSuccess,
+  IForgotPassword,
+  IForgotPasswordSuccess,
   ILoginUser,
   IRegisterUser,
   IResetPassword,
@@ -119,6 +121,22 @@ const refreshSession = createAsyncThunk<
   }
 });
 
+const forgotPassword = createAsyncThunk<
+  IForgotPasswordSuccess,
+  IForgotPassword,
+  { rejectValue: string; state: RootState }
+>("session/forgotPas", async (data, { rejectWithValue }) => {
+  try {
+    return await apiService.forgotPassword(data);
+  } catch (err: any) {
+    if (err instanceof AxiosError && err.response) {
+      return rejectWithValue(err.response.data.error);
+    }
+
+    return rejectWithValue(err.message);
+  }
+});
+
 const resetPassword = createAsyncThunk<
   IAuthUserSuccess,
   IResetPassword & { token: string },
@@ -188,6 +206,16 @@ const sessionsSlice = createSlice({
       }
     });
 
+    builder.addCase(forgotPassword.fulfilled, (state, { payload: { message } }) => {
+      state.message = message;
+    });
+
+    builder.addCase(forgotPassword.rejected, (state, { payload }) => {
+      if (payload) {
+        state.error = payload;
+      }
+    });
+
     builder.addCase(
       refreshSession.fulfilled,
       (state, { payload: { access, refresh, message } }) => {
@@ -202,22 +230,35 @@ const sessionsSlice = createSlice({
       }
     });
 
-    builder.addMatcher(isPending(), (state) => {
-      state.isLoading = true;
-      state.error = null;
-      state.message = null;
-    });
+    builder.addMatcher(
+      isPending(
+        registerUser,
+        loginUser,
+        signOutUser,
+        refreshSession,
+        resetPassword,
+        forgotPassword
+      ),
+      (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.message = null;
+      }
+    );
 
-    builder.addMatcher(isFulfilled(), (state) => {
-      state.isLoading = false;
-    });
+    builder.addMatcher(
+      isFulfilled(registerUser, loginUser, signOutUser, resetPassword),
+      (state) => {
+        state.isLoading = false;
+      }
+    );
 
-    builder.addMatcher(isRejected(), (state) => {
+    builder.addMatcher(isRejected(registerUser, loginUser, signOutUser, resetPassword), (state) => {
       state.isLoading = false;
     });
   },
 });
 
-export { registerUser, loginUser, signOutUser, resetPassword };
+export { registerUser, loginUser, signOutUser, resetPassword, forgotPassword };
 
 export default sessionsSlice.reducer;

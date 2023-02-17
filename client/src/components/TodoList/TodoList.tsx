@@ -7,22 +7,25 @@ import Typography from "@mui/material/Typography";
 import { fetchTodos, useAppDispatch, useAppSelector } from "../../store";
 import { selectCurrentSession, selectTodos } from "../../store/selectors";
 import { TodoItem } from "../TodoItem";
+import { useToggle } from "../../hook";
+import { AddNewTodoForm } from "../AddNewTodoForm";
 
-interface IProps {
-  toggleAddForm: () => void;
-}
+export const TodoList = () => {
+  const [isAddNewTodoFormOpen, toggleAddForm] = useToggle();
 
-export const TodoList = ({ toggleAddForm }: IProps) => {
   const currentSession = useAppSelector(selectCurrentSession);
   const todos = useAppSelector(selectTodos);
 
   const dispatch = useAppDispatch();
-
   useEffect(() => {
     if (currentSession) {
       dispatch(fetchTodos());
     }
-  }, [currentSession]);
+  }, []);
+
+  if (isAddNewTodoFormOpen) {
+    return <AddNewTodoForm closeForm={toggleAddForm} />;
+  }
 
   return (
     <List>

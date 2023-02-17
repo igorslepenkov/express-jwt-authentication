@@ -14,12 +14,16 @@ import EditIcon from "@mui/icons-material/Edit";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ITodo } from "../../types";
 import { deleteTodo, useAppDispatch } from "../../store";
+import { useToggle } from "../../hook";
+import { UpdateTodoForm } from "../UpdateTodoForm";
 
 interface IProps {
   todo: ITodo;
 }
 
 export const TodoItem = ({ todo }: IProps) => {
+  const [isUpdateTodoFormOpen, toggleUpdateTodoForm] = useToggle();
+
   const dispatch = useAppDispatch();
 
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
@@ -41,11 +45,15 @@ export const TodoItem = ({ todo }: IProps) => {
 
   const popoverOpen = !!anchorEl;
 
+  if (isUpdateTodoFormOpen) {
+    return <UpdateTodoForm id={todo.id} closeForm={toggleUpdateTodoForm} />;
+  }
+
   return (
     <ListItem
       secondaryAction={
         <>
-          <IconButton edge="start" data-item={todo.id}>
+          <IconButton edge="start" onClick={toggleUpdateTodoForm}>
             <EditIcon />
           </IconButton>
 
@@ -60,7 +68,11 @@ export const TodoItem = ({ todo }: IProps) => {
         <ListItemIcon>
           <ExpandMoreIcon />
         </ListItemIcon>
-        <ListItemText id={todo.id} primary={todo.title} />
+        <ListItemText
+          id={todo.id}
+          primary={todo.title}
+          secondary={todo.description.slice(0, 50) + "..."}
+        />
       </ListItemButton>
 
       <Popover
@@ -72,7 +84,9 @@ export const TodoItem = ({ todo }: IProps) => {
           horizontal: "left",
         }}
       >
-        <Typography sx={{ p: 2 }}>{todo.description}</Typography>
+        <Typography sx={{ p: 2, maxWidth: "50vw", wordWrap: "break-word" }}>
+          {todo.description}
+        </Typography>
       </Popover>
     </ListItem>
   );

@@ -29,7 +29,7 @@ export const MessageModalListener = ({ isOpen, toggleModal }: IProps) => {
     }
 
     toggleModal();
-  }, [sessionError, sessionMessage, todosError, todosMesage]);
+  }, [sessionError, sessionMessage, todosError, todosMesage, sessionIsLoading, todosIsLoading]);
 
   if (sessionError) {
     return (
@@ -48,17 +48,6 @@ export const MessageModalListener = ({ isOpen, toggleModal }: IProps) => {
     );
   }
 
-  if (sessionMessage) {
-    return (
-      <MessageModal
-        isOpen={isOpen}
-        toggleModal={toggleModal}
-        status="Success"
-        message={sessionMessage}
-      />
-    );
-  }
-
   if (todosMesage) {
     return (
       <MessageModal
@@ -66,6 +55,17 @@ export const MessageModalListener = ({ isOpen, toggleModal }: IProps) => {
         toggleModal={toggleModal}
         status="Success"
         message={todosMesage}
+      />
+    );
+  }
+
+  if (sessionMessage) {
+    return (
+      <MessageModal
+        isOpen={isOpen}
+        toggleModal={toggleModal}
+        status="Success"
+        message={sessionMessage}
       />
     );
   }

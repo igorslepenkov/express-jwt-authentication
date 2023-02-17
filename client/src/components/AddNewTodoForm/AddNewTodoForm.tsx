@@ -30,10 +30,10 @@ export const AddNewTodoForm = ({ closeForm }: IProps) => {
       component="form"
       onSubmit={handleSubmit(onSubmit)}
       sx={(theme) => ({
-        maxWidth: "50vw",
+        maxWidth: "40vw",
         padding: "30px",
         margin: "auto",
-        marginTop: "30vh",
+        marginTop: "10vh",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",

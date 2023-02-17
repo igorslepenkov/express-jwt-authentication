@@ -7,8 +7,8 @@ class UsersMailer extends BaseMailer {
     const token = tokenGenerator.signMailerToken({ userId: user.id });
     const domain =
       process.env.NODE_ENV === "production"
-        ? process.env.PROD_HOST
-        : `${process.env.DEV_HOST}:${process.env.PORT}`;
+        ? process.env.PROD_MAILER_HOST
+        : `${process.env.DEV_MAILER_HOST}:${process.env.PORT}`;
     const restorePasswordLink = `http://${domain}/users/resetPas/${token}`;
 
     await this.send({

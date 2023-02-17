@@ -17,6 +17,7 @@ import {
   IUpdateTodoSuccess,
 } from "../../types";
 import { RootState } from "../store";
+import { signOutUser } from "./sessionSlice";
 
 export interface ITodosSlice {
   todos: Array<ITodo>;
@@ -140,7 +141,6 @@ export const todosSlice = createSlice({
   extraReducers(builder) {
     builder.addCase(fetchTodos.fulfilled, (state, { payload: { todos, message } }) => {
       state.todos = todos;
-      state.message = message;
     });
 
     builder.addCase(fetchTodos.rejected, (state, { payload }) => {
@@ -186,7 +186,8 @@ export const todosSlice = createSlice({
     });
 
     builder.addCase(deleteTodo.fulfilled, (state, { payload: { message, id } }) => {
-      state.todos = state.todos.filter((todo) => todo.id === id);
+      const idx = state.todos.findIndex((todo) => todo.id === id);
+      state.todos.splice(idx, 1);
       state.message = message;
     });
 
@@ -196,17 +197,20 @@ export const todosSlice = createSlice({
       }
     });
 
-    builder.addMatcher(isPending(), (state) => {
-      state.isLoading = true;
-      state.error = null;
-      state.message = null;
-    });
+    builder.addMatcher(
+      isPending(fetchTodos, createTodo, updateTodo, deleteTodo, signOutUser),
+      (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.message = null;
+      }
+    );
 
-    builder.addMatcher(isFulfilled(), (state) => {
+    builder.addMatcher(isFulfilled(fetchTodos, createTodo, updateTodo, deleteTodo), (state) => {
       state.isLoading = false;
     });
 
-    builder.addMatcher(isRejected(), (state) => {
+    builder.addMatcher(isRejected(fetchTodos, createTodo, updateTodo, deleteTodo), (state) => {
       state.isLoading = false;
     });
   },
