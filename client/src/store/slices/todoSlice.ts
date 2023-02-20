@@ -44,7 +44,7 @@ const fetchTodos = createAsyncThunk<
     } = getState();
 
     if (currentSession) {
-      return await apiService.indexTodos(currentSession.access);
+      return await apiService.indexTodos();
     }
 
     return rejectWithValue("User is not signed in");
@@ -68,7 +68,7 @@ const createTodo = createAsyncThunk<
     } = getState();
 
     if (currentSession) {
-      return await apiService.createTodo(data, currentSession.access);
+      return await apiService.createTodo(data);
     }
 
     return rejectWithValue("User is not signed in");
@@ -93,7 +93,7 @@ const updateTodo = createAsyncThunk<
 
     if (currentSession) {
       const { id, title, description } = data;
-      const result = await apiService.updateTodo(id, { title, description }, currentSession.access);
+      const result = await apiService.updateTodo(id, { title, description });
 
       return { ...result, id, title, description };
     }
@@ -119,7 +119,7 @@ const deleteTodo = createAsyncThunk<
     } = getState();
 
     if (currentSession) {
-      const result = await apiService.deleteTodo(id, currentSession.access);
+      const result = await apiService.deleteTodo(id);
 
       return { ...result, id };
     }

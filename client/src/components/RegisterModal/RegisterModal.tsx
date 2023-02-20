@@ -1,6 +1,8 @@
 import { Button, Modal, Paper, TextField, Typography } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
-import { registerUser, useAppDispatch } from "../../store";
+import { ClipLoader } from "react-spinners";
+import { registerUser, useAppDispatch, useAppSelector } from "../../store";
+import { selectSessionIsLoading } from "../../store/selectors";
 import { IRegisterUser } from "../../types";
 import { emailRegex } from "../../utils";
 
@@ -10,6 +12,8 @@ interface IProps {
 }
 
 export const RegisterModal = ({ isOpen, handleModal }: IProps) => {
+  const isSessionLoading = useAppSelector(selectSessionIsLoading);
+
   const {
     control,
     handleSubmit,
@@ -143,7 +147,7 @@ export const RegisterModal = ({ isOpen, handleModal }: IProps) => {
         />
 
         <Button color="secondary" variant="contained" type="submit" size="large">
-          Submit
+          {isSessionLoading ? <ClipLoader loading={isSessionLoading} color="#ffffff" /> : "Submit"}
         </Button>
       </Paper>
     </Modal>

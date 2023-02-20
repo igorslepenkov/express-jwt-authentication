@@ -15,7 +15,7 @@ import {
   IUpdateTodoSuccess,
   IDeleteTodoSuccess,
 } from "../types";
-import { createDinamicUrlString } from "../utils";
+import { accessInterseptor, createDinamicUrlString } from "../utils";
 
 enum Endpoint {
   RegisterUser = "users/register",
@@ -31,6 +31,11 @@ enum Endpoint {
 class ApiService {
   private BASE_URL = process.env.REACT_APP_API_URL!;
   private API = axios.create({ baseURL: this.BASE_URL });
+  private PRIVATE_API = axios.create({ baseURL: this.BASE_URL });
+
+  constructor() {
+    this.PRIVATE_API.interceptors.request.use(accessInterseptor);
+  }
 
   async registerUser(userData: IRegisterUser): Promise<IAuthUserSuccess> {
     const { data } = await this.API.post<IAuthUserSuccess>(Endpoint.RegisterUser, userData);
@@ -42,10 +47,8 @@ class ApiService {
     return data;
   }
 
-  async signOutUser(userToken: string): Promise<ISignOutUserSuccess> {
-    const { data } = await this.API.get<ISignOutUserSuccess>(Endpoint.SignOutUser, {
-      headers: { Authorization: `Bearer ${userToken}` },
-    });
+  async signOutUser(): Promise<ISignOutUserSuccess> {
+    const { data } = await this.PRIVATE_API.get<ISignOutUserSuccess>(Endpoint.SignOutUser);
 
     return data;
   }
@@ -67,52 +70,38 @@ class ApiService {
     return data;
   }
 
-  async indexTodos(userToken: string): Promise<IIndexTodosSuccess> {
-    const { data } = await this.API.get<IIndexTodosSuccess>(Endpoint.Todos, {
-      headers: { Authorization: `Bearer ${userToken}` },
-    });
+  async indexTodos(): Promise<IIndexTodosSuccess> {
+    const { data } = await this.PRIVATE_API.get<IIndexTodosSuccess>(Endpoint.Todos);
 
     return data;
   }
 
-  async showTodo(id: string, userToken: string): Promise<ITodoSuccess> {
+  async showTodo(id: string): Promise<ITodoSuccess> {
     const url = createDinamicUrlString(Endpoint.Todo, { id });
 
-    const { data } = await this.API.get<ITodoSuccess>(url, {
-      headers: { Authorization: `Bearer ${userToken}` },
-    });
+    const { data } = await this.PRIVATE_API.get<ITodoSuccess>(url);
 
     return data;
   }
 
-  async createTodo(todoData: ICreateTodo, userToken: string): Promise<ITodoSuccess> {
-    const { data } = await this.API.post<ITodoSuccess>(Endpoint.Todos, todoData, {
-      headers: { Authorization: `Bearer ${userToken}` },
-    });
+  async createTodo(todoData: ICreateTodo): Promise<ITodoSuccess> {
+    const { data } = await this.PRIVATE_API.post<ITodoSuccess>(Endpoint.Todos, todoData);
 
     return data;
   }
 
-  async updateTodo(
-    id: string,
-    todoData: IUpdateTodo,
-    userToken: string
-  ): Promise<IUpdateTodoSuccess> {
+  async updateTodo(id: string, todoData: IUpdateTodo): Promise<IUpdateTodoSuccess> {
     const url = createDinamicUrlString(Endpoint.Todo, { id });
 
-    const { data } = await this.API.patch<IUpdateTodoSuccess>(url, todoData, {
-      headers: { Authorization: `Bearer ${userToken}` },
-    });
+    const { data } = await this.PRIVATE_API.patch<IUpdateTodoSuccess>(url, todoData);
 
     return data;
   }
 
-  async deleteTodo(id: string, userToken: string): Promise<IDeleteTodoSuccess> {
+  async deleteTodo(id: string): Promise<IDeleteTodoSuccess> {
     const url = createDinamicUrlString(Endpoint.Todo, { id });
 
-    const { data } = await this.API.delete<IDeleteTodoSuccess>(url, {
-      headers: { Authorization: `Bearer ${userToken}` },
-    });
+    const { data } = await this.PRIVATE_API.delete<IDeleteTodoSuccess>(url);
 
     return data;
   }

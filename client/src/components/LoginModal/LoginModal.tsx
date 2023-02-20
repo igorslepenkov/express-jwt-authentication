@@ -2,8 +2,10 @@ import { Button, Modal, Paper, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useForm, Controller } from "react-hook-form";
 import { resolvePath } from "react-router-dom";
+import { ClipLoader } from "react-spinners";
 import { ROUTE } from "../../router";
-import { loginUser, useAppDispatch } from "../../store";
+import { loginUser, useAppDispatch, useAppSelector } from "../../store";
+import { selectSessionIsLoading } from "../../store/selectors";
 import { ILoginUser } from "../../types";
 import { emailRegex } from "../../utils";
 import { LinkWithoutStyles } from "../LinkWithoutStyles";
@@ -14,6 +16,7 @@ interface IProps {
 }
 
 export const LoginModal = ({ isOpen, handleModal }: IProps) => {
+  const isSessionLoading = useAppSelector(selectSessionIsLoading);
   const {
     control,
     handleSubmit,
@@ -120,7 +123,7 @@ export const LoginModal = ({ isOpen, handleModal }: IProps) => {
         </Box>
 
         <Button color="secondary" variant="contained" type="submit" size="large">
-          Submit
+          {isSessionLoading ? <ClipLoader loading={isSessionLoading} color="#ffffff" /> : "Submit"}
         </Button>
       </Paper>
     </Modal>

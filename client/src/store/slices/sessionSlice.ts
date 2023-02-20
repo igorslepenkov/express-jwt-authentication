@@ -80,7 +80,7 @@ const signOutUser = createAsyncThunk<
     } = getState();
 
     if (session) {
-      const result = await apiService.signOutUser(session.access);
+      const result = await apiService.signOutUser();
 
       return result;
     }
@@ -259,6 +259,6 @@ const sessionsSlice = createSlice({
   },
 });
 
-export { registerUser, loginUser, signOutUser, resetPassword, forgotPassword };
+export { registerUser, loginUser, signOutUser, resetPassword, forgotPassword, refreshSession };
 
 export default sessionsSlice.reducer;
