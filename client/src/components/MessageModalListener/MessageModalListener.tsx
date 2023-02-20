@@ -28,7 +28,7 @@ export const MessageModalListener = ({ isOpen, toggleModal }: IProps) => {
       return;
     }
 
-    toggleModal();
+    if (sessionError || sessionMessage || todosError || todosMesage) toggleModal();
   }, [sessionError, sessionMessage, todosError, todosMesage, sessionIsLoading, todosIsLoading]);
 
   if (sessionError) {
