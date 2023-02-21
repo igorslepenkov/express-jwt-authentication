@@ -48,7 +48,7 @@ class TodosService {
         return {
           status: 200,
           body: todoMapper(todo),
-          message: "Ok",
+          message: "Todo created",
         };
       }
 

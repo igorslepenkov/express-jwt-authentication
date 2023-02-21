@@ -161,11 +161,11 @@ class UsersController {
 
         if (status === 200 && body) {
           await usersMailer.forgotPassword(body);
-          res.status(200).send({ message: "Password restoration email send" });
+          res.status(200).send({ message: "Password restoration email has been sent" });
           return;
         }
 
-        res.status(status).send(message);
+        res.status(status).send({ error: message });
       },
       { email }
     );

@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import cors from "cors";
 import path from "path";
 import express from "express";
 import morgan from "morgan";
@@ -8,6 +9,13 @@ import { authMiddleware, sessionMiddleware } from "./middleware";
 import { todosRouter, usersRouter } from "./routes";
 
 const app = express();
+
+const corsOptions = {
+  origin: "*",
+};
+
+app.use(cors(corsOptions));
+
 app.set("trust proxy", true);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
